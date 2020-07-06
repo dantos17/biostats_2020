@@ -1,0 +1,50 @@
+---
+title: "Descriptive Stats notes"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Descriptive Stats Lecture 3
+*Marginal Sums* can be for rows or columns and is the sum of the total # of observations in either the rows or the columns. (Basically how many N's you have)
+*Conditional Probabilities* are different but can also be pulled from the table: P(a|b)--probability that a happens given b. If the variables are *independent*, you only use the marginal values to calculate probabilities. 
+
+
+```{r Marginal Sums}
+library(gmodels)
+attach(monica) #this does not exist apparently, not in documentation at all
+CrossTable(sex,outcome,prop.chisq=FALSE) #turns off Chi2 stat
+```
+Testing independence is the basis for the Chi2 test. We will look at (Observed cell counts-expected cell counts)^2/Expected (to normalize)
+- this is a hypothesis test where the null hypothesis is that there's no difference between observed and expected
+- always non-negative because the difference squared is always positive
+- if the variables are indepedent then X-squared=0
+```{r Chi squared example}
+D <- matrix (c(2550, 975, 2055, 787), nrow = 2, dimnames =  list(c("m","f"),c("live","dead")))
+D
+chisq.test(D)
+```
+Yates continuity correction is the default, in this case it's irrelevant because our sample size is so big. df=(rows-1) x (columns-1)
+
+*Odds* is another descriptive statistic and is equal to p/(1-p)
+- Probability and odds have a 1:1 correspondence, as well as log(odds)
+*Odds Ratio* is the odds of two events in a row
+```{r Odds Ratio}
+H <- matrix(c(2, 7, 8, 3), nrow = 2, dimnames = list(c("No Drug","Drug"), c("live","dead"))) #ten patients per group
+H
+```
+Odds of being dead in the no-drug group is: 0.8/(1-0.8)=0.4
+Odds of being dead in the drug group is: 0.3/(1-0.3)-0.43
+So the odds ratio of being dead is 0.43/0.4=0.107
+(2x3)/(8x7)=0.107 (cross-product)
+
+To test the null Hypothesis that the Odds Ratio-1, we can use the Chi squared test of independence or *Fisher's Exact Test*, good for smaller sample sizes
+```{r Fisher test}
+fisher.test(H)
+```
+
+
+
+
