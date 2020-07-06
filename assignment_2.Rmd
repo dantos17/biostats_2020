@@ -1,0 +1,50 @@
+---
+title: "Assignment 2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+I will start by reading the data into RStudio in two separate dataframes based on dose.
+
+```{r Reading data in}
+setwd("C:/Users/dania/Documents/Pitt/BioStats/Module 2")
+x <- read.table("assignment_2_sum.txt",sep="\t",header=T)
+y <- read.table("assignment_2_high.txt",sep="\t",header=T)
+```
+"X" is the data from patients receiving 600 mg of HCQ and "Y" is the data from patients receiving 1200 mg of HCQ. To test significant changes in PD-1 activity (defined as PD-1 MFI x cell population percentage), I will perform t tests for each cell population, comparing the low dose and high dose. To do this, I will start by entering each value under its own name.
+```{r Naming cell populations}
+#h corresponds to helper CD4 T cells and c corresponds to cytotoxic CD8 T cells
+hmem_lo <- x$CD4mem
+hmem_hi <- y$CD4mem
+
+heff_lo <- x$CD4eff
+heff_hi <- y$CD4eff
+
+hnaive_lo <- x$CD4naive
+hnaive_hi <- y$CD4naive
+
+cmem_lo <- x$CD8mem
+cmem_hi <- y$CD8mem
+
+ceff_lo <- x$CD8eff
+ceff_hi <- y$CD8eff
+
+cnaive_lo <- x$CD8naive
+cnaive_hi <- y$CD8naive
+```
+
+```{r T tests}
+t.test(hmem_hi,hmem_lo)
+t.test(heff_hi,heff_lo)
+t.test(hnaive_hi,hnaive_lo)
+t.test(cmem_hi,cmem_lo)
+t.test(ceff_hi,ceff_lo)
+t.test(cnaive_hi,cnaive_lo)
+```
+```{r}
+cor(x,y, method = "pearson") #this is not working and I'm not entirely sure why. might try to run a linear regression
+```
+
