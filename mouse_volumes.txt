@@ -1,0 +1,35 @@
+trt	Mouse.ID	log.vol	vol		
+Control	4NVA1T	1.032	9.758		"Added volumes together from other sheet, did a log transformation -> took value, added one, and took log10"
+Control	4NVA2T	0.862	6.273		GraphPad -> column
+Control	4NVA3T	1.282	18.144		unpaired because they're separate animals
+Control	4NVA4T	1.26	17.188		use parametric test
+Control	4NVA5T	0	0		use Welch's variant
+Control	4NVB1T	1.166	13.664		
+Control	4NVB2T	1.023	9.546		
+Control	4NVB3T	1.159	13.438		
+Control	4NVB4T	0	0		
+Control	4NVB5T	0.546	2.512		
+Control	4NVC1T	1.139	12.758		
+Control	4NVC2T	0.501	2.168		
+Control	4NVC3T	0.347	1.224		
+Control	4NVC4T	0.469	1.944		
+Control	4NVD1T	1.108	11.831		
+Control	4NVD2T	0.727	4.331		
+Control	4NVD3T	1.457	27.64		
+SF	4NSE1T	0	0		
+SF	4NSE2T	0.621	3.179		
+SF	4NSE3T	0.252	0.786		
+SF	4NSE4T	0.23	0.7		
+SF	4NSE5T	0.61	3.078		
+SF	4NSF1T	0.659	3.564		
+SF	4NSF2T	0.767	4.851		
+SF	4NSF3T	0.374	1.368		
+SF	4NSF4T	0	0		
+SF	4NSF5T	0	0		
+SF	4NSG1T	0.266	0.847		
+SF	4NSG2T	0.984	8.64		
+SF	4NSG3T	0.16	0.446		
+SF	4NSG4T	1.063	10.57		
+SF	4NSH2T	0.279	0.9		
+SF	4NSH3T	0	0		
+SF	4NSH4T	0.866	6.348		
