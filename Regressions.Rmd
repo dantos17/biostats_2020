@@ -1,0 +1,356 @@
+---
+title: "Regression Models"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Linear Regression
+
+We already talked about these a little bit. You can have a *simple* linear regression, using a straight line, **multiple linear regression** which is still a flat function but uses multiple predictors as opposed to just one. *Nonlinear* regressions use a curved function (not a straight line), and local regressions model a response variable by a non-specified model that can be curved.
+
+Linear regression in R uses the lm() function; lm(y~x)
+>y~x is a formula where the slope and intercept are implied
+
+```{r linear model}
+#NOTE I made this data up completely in my head. There may not be any sort of regression. 
+setwd("C:/Users/dania/Documents/Pitt/BioStats/Module 3")
+z <- read.table("data frame.txt",sep="\t",header=T)
+lm1 <- lm(y~x,data = z)
+with(z,plot(x,y,type="p",pch=16,col="navy")) #graph, type= points, pch=16 gives solid points instead of circles, color is navy
+abline(lm1) #abline is the regression line
+summary(lm1) 
+```
+
+In the summary of the model, the **intercept** is b0, estimated at where it crosses the Y axis, and **x** is the slope as indicated by the regression line. *Standard error* is a measure of uncertainty of the intercept and can be used to calculate confidence intervals. The **t** and **p values** are measures of significance: The t value is testing the null hypothesis that the intercept=0 or the slope=0. If the slope=0, the predictor (x) has some relationship with the response variable (y). The p values are linked to the t values. The **R squared** value is the proportion of the response variable that is explained by the predictor. For a simple linear regression, the F test will be the same as the p value for a single predictor. 
+```{r}
+confint(lm1) #for CI of model, 95% is default but can be changed
+#gives CI for both the intercept and the predictor
+```
+## Residuals
+
+Residuals are the differences between y values and predicted y values. Since we're only predicting y, x and y are NOT interchangeable. Generally the *sum of squares of residuals* is used, meaning that each distance is calculated, squared, and added together. The regression line is specifically chosen to minimize this value, making it unique to the data.
+
+You can check your model with a QQ plot to see if you've chosen an accurate model.
+```{r checking model}
+plot(lm1)
+```
+
+For the Residuals vs Fitted plot, the fitted values are on the X axis and residuals on the y axis. The model is optimal if the red line sits over the horizontal dotted line at y=0. Judging the fit of the red line is pretty subjective. 
+
+We can also get **confidence** and **prediction intervals** based on our model. Confidence intervals Y at a certain value of x are based on the mean of Y at x, testing the estimates for alpha and beta. The vertical width of the CI will go to 0 as the sample size gets large. The prediction interval for Y at a certain x describes where certain values of Y will occur, aka the distribution of Y, NOT where the mean will be. 
+```{r CI and PI}
+y.c <- predict(lm1,
+interval="confidence")
+x.ci <- c(z$x,sort(z$x,decreasing=TRUE))
+y.ci <- c(y.c[,3],sort(y.c[,2])) #Daniel added this based on his data frame and I'm not sure what he was doing so mine do not look correct for my dataset
+plot(z$x,z$y,type="p",pch=16,
+col="navy")
+abline(lm1)
+polygon(x.ci,y.ci,density=NA,
+col="#0000ff22")
+#prediction interval
+y.p <- predict(lm1,
+interval="prediction")
+x.pi <- c(z$x,
+sort(z$x,decreasing=TRUE))
+y.pi <- c(y.p[,3],sort(y.p[,2]))
+plot(z$x,z$y,type="p",pch=16,
+col="navy")
+abline(lm1)
+polygon(x.pi,y.pi,density=NA,
+col="#0000ff22")
+```
+
+Correlation and regression are related. If r=correlation coefficient, and we have the regression line, then:
+
+>b1 = r*(sx/sy) 
+
+>where sx=SD of x and sy=SD of y
+
+## Nonlinear relationship
+
+Not all regressions will be linear. 
+```{r}
+setwd("C:/Users/dania/Documents/Pitt/BioStats/Module 3")
+u <- read.table("sigma function.txt",sep="\t",header=T)
+plot(u, type = "p", pch = 16, col = "black")
+```
+
+For this type of data, we will use a method called **LOESS**, related to a local regression, in the package gam. It is a generalized additive model. 
+```{r}
+library(gam)
+gam(u$h~lo(u$r)) #h will be regressed on the LOESS of r
+h <- u$h[order(u$r)] #sort by ascending r, h HAS to go first
+r <- u$r[order(u$r)] #sort by ascending r
+h.gam1 <- gam(h~lo(r)) #make the GAM object
+h.gam1.p <- predict(h.gam1,se.fit=TRUE) #use the GAM object to make predictons
+plot(r,h,type="p",pch=16,col="navy")
+lines(r,h.gam1.p$fit,type="l",lwd=2) #plot the predicted values (fit) as a line in the graph
+h.p <- matrix(NA,nrow=length(r),ncol=2) #---Make a matrix to hold the CIs
+h.p[,1] <- h.gam1.p$fit-2*h.gam1.p$se.fit #---Lower bound in column 1
+h.p[,2] <- h.gam1.p$fit+2*h.gam1.p$se.fit #---Upper bopund in column 2
+x.ci <- c(r,rev(r)) #---Tack the reverse of r onto r
+y.ci <- c(h.p[,2],rev(h.p[,1])) #---Tack the upper bounds onto the lower bounds
+polygon(x.ci,y.ci,col="#0000ff22",density=NA) #---Shade in the area, ff is blue and 22 makes it pretty transparent
+names(h.gam1) #gives you the components of an object
+names(h.gam1.p)
+```
+
+The other nonlinear form is if you know the nonlinear model somehow. You can use the nonlinear least squares function, nls(),to make the model, estimate CIs, etc.
+
+The formula for nls() is y ~ ((phi*x)/(theta+x)). In this case, phi and theta are parameters and y and x are variables.
+```{r NLS}
+mm <- structure(list(S = c(3.6, 1.8, 0.9, 0.45, 0.225, 0.1125, 3.6, 
+                           1.8, 0.9, 0.45, 0.225, 0.1125, 3.6, 1.8, 0.9, 0.45, 0.225, 0.1125, 
+                           0), v = c(0.004407692, 0.004192308, 0.003553846, 0.002576923, 
+                                     0.001661538, 0.001064286, 0.004835714, 0.004671429, 0.0039, 0.002857143, 
+                                     0.00175, 0.001057143, 0.004907143, 0.004521429, 0.00375, 0.002764286, 
+                                     0.001857143, 0.001121429, 0)), .Names = c("S", "v"), class = "data.frame", row.names = c(NA, 
+                                                                -19L))
+#I got this data online from a tutorial so I wouldn't have to make up my own anymore.
+plot(mm, type="p",pch=16,col="navy")
+nls.mm <- nls(v ~ (phi*S)/(theta+S),data=mm,start=list(theta=0.5,phi=0.5)) #list function allows you to put multiple data types, ex. numbers, characters, other lists, into the same function
+summary(nls.mm)
+names(nls.mm)
+```
+## Multiple Linear Regressions
+
+We will extend what we learned about simple regressions to ones that involve multiple predictor variables (but there is still only one response variable, y). The least squares estimate can find the best-fitting model for y given the set of predictors. Non-significant predictors should be excluded to avoid modeling noise (also called overfitting the data). 
+
+**Example**: We're using drug trial data from a drug called Amifostine, which is a prodrug for WR-1065. Ami gets metabolized by the liver to the active drug, which protects against radiation, faster by a normal liver than cancerous liver. The drug is administered to a patient and then they are hit with radiation such that normal liver cells will be protected and cancerous cells will not.
+
+The model can be written as:
+
+>Y=B0 + B1Dose(i) + B2Time(i) + B3Dose(i)^2 + B4Time(i)^2 + B5Dose(i) x Time(i) + e(i)
+
+>B1Dose(i) + B2Time(i) are the main effects of dose and time
+
+>B3Dose(i)^2 + B4Time(i)^2 are the quadratic effects of dose and time
+
+>B5Dose(i) x Time(i) is the interaction of dose and time
+
+>This is still a linear model because each thing is multiplied by a beta coefficient and added together
+
+>The idea here is that there are specific values of Dose and Time that will maximize the ratio (treatment efficacy) after we estimate the parameters
+
+**NOTE**: I have no data for this experiment. Here's what the code would look like.
+
+sr.1 <- lm(liver.tumor ~ Dose + Time + dose2 + time2 + Dose*Time ,
++ data=portal) 
+summary(sr.1)
+>Call:
+lm(formula = liver.tumor ~ Dose + Time +
+Dose : Time + dose2 + time2, data = portal)
+
+>Coefficients:
+
+>Estimate Std. Error t value Pr(>|t|)
+
+>(Intercept) -4.215e+00 5.195e+00 -0.811 0.4262
+
+>Dose 1.598e-02 7.193e-03 2.222 0.0374
+
+>Time 5.093e-02 6.556e-02 0.777 0.4459
+
+>dose2 1.006e-05 1.270e-05 0.792 0.4373
+
+>time2 1.160e-03 1.260e-03 0.921 0.3674
+
+>Dose:Time -2.036e-04 1.117e-04 -1.822 0.0827
+
+>Residual standard error: 0.9289 on 21 degrees of freedom
+
+>Multiple R-squared: 0.6389,Adjusted R-squared: 0.5529
+
+>F-statistic: 7.431 on 5 and 21 DF, p-value: 0.0003767
+
+qqnorm(sr.1$residuals)
+
+liver.tumor is the size of the tumor, and his dataset "portal" has columns each for the dose, time, dose^2, and time^2, so he can make the model "by hand" and put it into sr.1. Intercepts (B0, B1, B2, etc.) are calculated as part of the output. T value=estimate/SE, and, while the last column is a p value, its use is NOT recommended for multiple regression models. 
+
+![](C:/Users/dania/Documents/Pitt/BioStats/Module 3/QQ plot Ami data.jpg)
+
+The QQ plot shows that there are some outliers but the data mostly fits the model. The *residual standard error* is the estimate of the SD of the error/noise term. The *multiple R-squared* is the variance of Y that is explained by the model. If you start with one predictor and continue adding them to the model, this value should increase. This will also increase even if the predictors aren't statistically significant, so it's better to use the **adjusted R-squared**. The p-value of the F statistic tells you whether or not the whole model is explaining the variance of Y.
+
+The anova() function will identify the p-values for individual predictors. Here's what the code would look like:
+
+anova(sr.1)
+
+>Analysis of Variance Table
+
+>Response: liver.tumor
+
+>Df Sum Sq Mean Sq F value Pr(>F)
+
+>Dose 1 8.3622 8.3622 9.6921 0.00526
+
+>Time 1 20.0420 20.0420 23.2295 9.185e-05
+
+>dose2 1 0.0557 0.0557 0.0646 0.80190
+
+>time2 1 0.7321 0.7321 0.8486 0.36742
+
+>Dose:Time 1 2.8652 2.8652 3.3209 0.08268
+
+>Residuals 21 18.1184 0.8628
+
+The anova function output is a table that works by adding each predictor variable in one at a time and then assessing the p-value and F statistic. Because it is sequential, each line (and p value) has taken into account the previous lines in the table.
+
+There is an alternative using the package "car." I am not going to load it because I don't have the data but will again show the putative code.
+
+library(car)
+
+Anova(sr.1,type=2)
+
+>Anova Table (Type II tests)
+
+>Response: liver.tumor
+
+>Sum Sq Df F value Pr(>F)
+
+>Dose 1.7576 1 2.0372 0.16820
+
+>Time 0.0066 1 0.0076 0.93122
+
+>dose2 0.5411 1 0.6271 0.43726
+
+>time2 0.7321 1 0.8486 0.36742
+
+>Dose:Time 2.8652 1 3.3209 0.08268
+
+>Residuals 18.1184 21
+
+Using the car package can give conditional p values, called Type 2 (anova is Type 1). Type 2 values are conditional upon ALL other variables in the model. So, if you change the order of the variables in this Type 2 analysis, the output will not change. Type 1 vs Type 2 depends on the intent of the analysis.
+
+Assumptions in a multiple regression model:
+
+* Response and predictor have a linear relationship
+* The model is correct (ie no extra predictors or omissions of predictors)
+* Predictors are measured without error
+* Variance of e(i) is constant and unrelated to the predictors
+* e(i) should be relatively Gaussian for the F-tests to be valid
+
+As seen in our model, **interactions** can be shown as the product of two predictors. Ex: lm(y ~ x1 + x2 + x1:x2) OR lm(y ~ x1*x2). While the quadratics of dose^2 and time^2 introduce curvature into the response, the model remains linear.
+
+If the predictors are correlated, then their significance is hard to determine. Ex. If x1 and x2 are highly correlated (r=0.94) and both are highly predictive of Y, if one is in the model, then the other will become nonsignificant. 
+
+![](C:/Users/dania/Documents/Pitt/BioStats/Module 3/x1x2.jpg)
+
+![](C:/Users/dania/Documents/Pitt/BioStats/Module 3/xy.jpg)
+
+If you run a model, this is what you'll see:
+
+summary(lm(y~x1+x2))
+
+Call:
+
+lm(formula = y ~ x1 + x2)
+
+Residuals:
+
+Min 1Q Median 3Q Max
+
+-8.7350 -3.1133 0.0627 3.8446 8.5207
+
+Coefficients:
+
+Estimate Std. Error t value Pr(>|t|)
+
+(Intercept) 9.47152 0.70550 13.425 8.54e-16 ***
+
+x1 -0.09182 0.39420 -0.233 0.817
+
+x2 2.04504 0.35445 5.770 1.29e-06 ***
+
+Residual standard error: 4.258 on 37 degrees of freedom
+
+Multiple R-squared: 0.8848,Adjusted R-squared: 0.8786
+
+F-statistic: 142.1 on 2 and 37 DF, p-value: < 2.2e-16
+
+qq(norm) will check the normality of the residuals
+
+R will also calculate factors and indicator variables automatically based on predictors that fit the description.
+
+## ANCOVA
+
+This is a specific test that adjusts for covariates before comparing two populations and a response variable.
+
+**Example**: We are looking at a dataset comparing tumor sizes post-surgery in patients that either did or did not receive treatment, but we want to adjust for pre-surgery size first (covariate). The pre-surgery size will not be a predictor in the dataset. 
+![](C:/Users/dania/Documents/Pitt/BioStats/Module 3/neo.jpg)
+Here's the accompanying code:
+
+lm(Post ~ Pre + treat + Pre:treat, data=neo)
+
+summary(lm2)
+
+Call:
+
+lm(formula = Post ~ Pre + treat + Pre:treat, data = neo)
+
+Residuals:
+
+Min 1Q Median 3Q Max
+
+-2.8537 -0.8134 -0.1526 0.6611 3.4246
+
+Coefficients:
+
+Estimate Std. Error t value Pr(>|t|)
+
+(Intercept) 0.41206 0.54854 0.751 0.455
+
+Pre 0.80044 0.17068 4.690 1.59e-05 ***
+
+treat1 -0.48196 0.73090 -0.659 0.512
+
+Pre:treat1 0.08132 0.21801 0.373 0.710
+
+Residual standard error: 1.327 on 61 degrees of freedom
+(7 observations deleted due to missingness)
+
+Multiple R-squared: 0.513,Adjusted R-squared: 0.4891
+
+F-statistic: 21.42 on 3 and 61 DF, p-value: 1.35e-09
+
+From the p values, we can see that the pre-surgery component is significant, but the interaction is not. In looking at the graph, we can see that the two lines are not parallel, meaning that the success of the treatment depends on the pre-surgery size of the tumor. **However**, since the interaction of pre-surgery size and treatment is not significant, we should take it out of the model.
+
+Re-fitting the model:
+
+summary(lm3)
+
+Call:
+
+lm(formula = Post ~ Pre + treat, data = neo)
+
+Residuals:
+
+Min 1Q Median 3Q Max
+
+-2.8994 -0.8192 -0.1186 0.6802 3.4198
+
+Coefficients:
+
+Estimate Std. Error t value Pr(>|t|)
+
+(Intercept) 0.2683 0.3877 0.692 0.491
+
+Pre 0.8503 0.1054 8.064 3.07e-11 ***
+
+treat1 -0.2390 0.3291 -0.726 0.471
+
+Residual standard error: 1.318 on 62 degrees of freedom
+(7 observations deleted due to missingness)
+
+Multiple R-squared: 0.5119,Adjusted R-squared: 0.4962
+
+F-statistic: 32.51 on 2 and 62 DF, p-value: 2.205e-10
+
+![](C:/Users/dania/Documents/Pitt/BioStats/Module 3/neo1.jpg)
+
+Here is the re-fitted model without the interaction. The lines are now parallel, and the vertical distance between the lines corresponds to the effectiveness of the drug.
+
+This multiple regression can be extended in a number of ways: the model can be non-linear; y can be dichotomous, making a logistic regression; y can be counts, making a Poisson regression; y can be multiple observations in the same individual, making repeated measures or a mixed model
