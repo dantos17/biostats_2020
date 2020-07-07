@@ -6,6 +6,67 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+##Confidence Intervals
+We're using the "binom" package here later so we can load it into the library. 
+The *central limit theorem* states that the larger the N is, the more squished the bell curve will be around the mean (steeper curves). The size of the 95% CI also changes with sample size--smaller n's have larger CIs.
+```{r creating dataset}
+y <- rnorm(20,17,3.5) #drawing 20 observations with a Gaussian distribution, mean of 17, and SD of 3.5
+y
+hist(y) #plot of y
+t.test(y) #95% confidence interval
+t.test(y,conf.level=0.90) #90% confidence interval
+```
+
+Gaussian distributions are not the only to exist. *Gamma distributions* are skewed and we can identify CIs in the same way.
+```{r Gamma distribution}
+a <- 2 #distribution will have shape a and scale s
+s <- 3
+
+y <- rgamma(30,shape=a,scale=s)
+mu.pop <- a*s #mean
+sd.pop <- sqrt(a*s^2) #SD
+mu.pop
+mean(y)
+sd.pop
+sd(y)
+y
+hist(y)
+t.test(y)
+```
+We can use the binom package to get exact confidence intervals for a number of events in a number of trials
+```{r binom}
+library(binom)
+binom.confint(17,22,methods="exact") #exact 95% binomial CI for 17 events in 22 trials
+
+binom.confint(1,15,conf.level=0.90,methods="exact") #exact 90% Binomial Confidence Interval for 1 event in 15 trials
+```
+
+We can also calculate CIs for asymptotic data with very very large sample sizes, noting the negative limit.
+```{r asymptotic}
+binom.confint(1,15,conf.level=0.90,methods="asymptotic") #90% CI for 1 event in 15 trials 
+#lower limit is below 0 but barely
+```
+
+##Descriptive Stats Lecture 1
+Significance doesn't always have to be 0.05, could make it higher for preliminary studies so you don't rule something out too soon
+```{r}
+x <- c(15,37,12,NA,22,11)
+
+mean(x)
+mean(x,na.rm=T)
+median(x)
+```
+*Quantiles* are like percentiles but expressed as a decimal instead of a percentage (whole number)
+```{r quantiles}
+#quantile(x,prob) is the function used here
+#x is a vector of numbers and prob is one of the quantiles
+var(x)
+#standard deviation, square root of variance
+sd(x)
+#as N increases, sample var and SD approach the pop var and SD
+#median absolute deviation (MAD) finds the difference between each value and the median, good for outliers
+mad(x)
+```
 
 ## Descriptive Stats Lecture 3
 *Marginal Sums* can be for rows or columns and is the sum of the total # of observations in either the rows or the columns. (Basically how many N's you have)
@@ -14,8 +75,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r Marginal Sums}
 library(gmodels)
-attach(monica) #this does not exist apparently, not in documentation at all
-CrossTable(sex,outcome,prop.chisq=FALSE) #turns off Chi2 stat
+#attach(monica) #this does not exist apparently, not in documentation at all
+#CrossTable(sex,outcome,prop.chisq=FALSE) #turns off Chi2 stat
 ```
 Testing independence is the basis for the Chi2 test. We will look at (Observed cell counts-expected cell counts)^2/Expected (to normalize)
 - this is a hypothesis test where the null hypothesis is that there's no difference between observed and expected

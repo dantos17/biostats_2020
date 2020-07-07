@@ -63,5 +63,11 @@ v <- read.table("assignment_2_sum_matrix.txt",sep="\t",header=FALSE)
 v
 cor(v,method = "pearson") #600 dose, looking at correlations between pairs of cell types
 plot(v)
+
+#now I'm wondering if I need to do a Chi-squared test, but using the chisq.test() function for q and v did not work because the values have to be "nonnegative and finite"
+a <- abs(q) #taking the absolute value of q and putting it into a new variable
+#now I can run the Chi-squared test
+chisq.test(a)
+#I don't think this preserves the data accurately 
 ```
 
