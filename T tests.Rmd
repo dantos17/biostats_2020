@@ -1,0 +1,83 @@
+---
+title: "T Tests"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+setwd("C:/Users/dania/Documents/Pitt/Biostats/Module 1")
+#this is basically where we're saving the data
+
+mice <- read.table("mouse_volumes.txt",sep="\t",header=T)
+#name of file; sep says that it's tab delimited; header says that's the where the titles of the vraiables are
+mice
+class(mice)
+#tells you what you're looking at, what format the data is in
+#with(mice,plot(log.vol~trt,xlim=NULL,na.rm=T))
+#we're plotting the log volume as a function of the treatment
+#with just means pull the data from the mice dataset
+#like a regular box plot, dark line is the median, bottom of box is first quartile, top of box is third quartile
+#with(mice,points(log.vol~trt,na.rm=T))
+#points gives you actual data points
+```
+##Welch's T Test##
+Basically a two sample Student's t test with the Welch's correction to account for different standard deviations among samples.
+```{r}
+with(mice,t.test(log.vol~trt)) #Welch's variant, default in R
+with(mice,t.test(log.vol~trt,var.equal=T))
+```
+**two tailed** tests are the default for R, as noted by the "alternative=" option in the function. To do a one-tailed test, change alternative to "greater" or "less;" one-tailed tests are less stringent than two-tailed tests and give a p value that is approximately half of what a two-tailed test would give
+```{r one tailed}
+with(mice,t.test(log.vol~trt,alternative="greater",var.equal=T))
+```
+##Paired Comparison tests##
+These compare individual patients over time, for example, before and after treatment.
+```{r paired comparison}
+setwd("C:/Users/dania/Documents/Pitt/Biostats/Module 1")
+patients <- read.table("CA19-9.txt",sep="\t",header=T)
+treated <- patients[patients$HCQ==1,] #not interested in controls because patients are compared to themselves
+treated
+
+before <- treated$log.CA.19.Pre
+after <- treated$log.CA.19.Post
+
+t.test(before,after,paired=T) #two tailed
+```
+
+##Creating a Linear Model##
+We can use the linear model to look at normality, residuals, etc. We can run the linear model on the log(volume) to look at outliers on the residual plots, then rerun the model with the actual volumes to identify the outliers.
+```{r linear model}
+lm1 <- with(mice,lm(log.vol~trt))
+lm1 <- with(mice,lm(vol~trt))
+summary(lm1)
+
+class(lm1) #lists all of the data classes that we can look at 
+lm1$residuals #residuals will help us identify how Gaussian the data is
+qqnorm(lm1$residuals)
+qqline(lm1$residuals)
+#the closer the residuals are to the line, the more Gaussian the data are
+```
+The **Wilcoxon test** is a nonparametric test that can be run in place of a t test, using rank instead of numeric values. This test has fewer assumptions than parametric tests and are helpful when data does not have a Gaussian distribution. The Wilcoxon test is an alternative for the two sample t test.
+```{r wilcoxon}
+with(mice,wilcox.test(log.vol~trt))
+#R calls test statistic W instead of T
+with(mice,wilcox.test(vol~trt))
+#these will be the same because the ranks for the vol and log.vol will be the same
+```
+Another nonparametric alternative is the **signed rank test** which is an alternative to the one sample t test or paired comparison test. 
+```{r signed rank}
+set.seed(1953)
+#random number generator
+before <- rnorm(15,10,3)
+after <- rnorm(15,7,3)
+#random normal (#, mean, SD) of observations
+plot(before,after)
+abline(a=0,b=1)
+
+wilcox.test(before,after,paired=T)
+#default is paired=F
+```
+
