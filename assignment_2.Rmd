@@ -36,6 +36,9 @@ cnaive_lo <- x$CD8naive
 cnaive_hi <- y$CD8naive
 ```
 
+*Question 1*: Effect of the treatment on PD-1 activity?
+Since we're using MFI x cell population % to calculate PD-1 activity, there's not much to be said about total PD-1 activity, it has to be cell type specific. I have already calculated change in PD-1 activity after treatment as % change from baseline, normalized to each patient. Now, I will run two sample t tests with Welch's correction to determine if PD-1 activity in patients with 600mg vs 1200 mg is significantly different in specific cell subsets. 
+
 ```{r T tests}
 t.test(hmem_hi,hmem_lo)
 t.test(heff_hi,heff_lo)
@@ -44,7 +47,21 @@ t.test(cmem_hi,cmem_lo)
 t.test(ceff_hi,ceff_lo)
 t.test(cnaive_hi,cnaive_lo)
 ```
-```{r}
-cor(x,y, method = "pearson") #this is not working and I'm not entirely sure why. might try to run a linear regression
+Noting is significant. I did not standardize among patients by accounting for differences in cell composition in samples. However, since we're technically comparing each patient to themself, I don't think this is strictly necessary. 
+
+*Question 2*: Is PD-1 activity in different cell types independent or dependent? 
+So I think we need to run a correlation matrix for each dataset (600 mg and 1200 mg) to see if PD-1 activity changes in different cell subsets is correlated with those in another subset. However, technically Chi-squared is the test of independence, so it's possible that Chi-squared is the only test for true independence.
+```{r Correlation matrices}
+#I started by trying to just run cor() on x and y but it didn't work, so I made matrices of each dataset with just the % change from baseline values (no headings, no patient numbers, no dosage) so that all of the values would be numeric
+setwd("C:/Users/dania/Documents/Pitt/BioStats/Module 2")
+q <- read.table("assignment_2_high_matrix.txt",sep="\t",header=FALSE)
+q
+cor(q,method = "pearson") #1200 dose, looking at correlations between pairs of cell types
+plot(q)
+
+v <- read.table("assignment_2_sum_matrix.txt",sep="\t",header=FALSE)
+v
+cor(v,method = "pearson") #600 dose, looking at correlations between pairs of cell types
+plot(v)
 ```
 
