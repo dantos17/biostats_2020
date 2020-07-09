@@ -46,6 +46,8 @@ y.c <- predict(lm1,
 interval="confidence")
 x.ci <- c(z$x,sort(z$x,decreasing=TRUE))
 y.ci <- c(y.c[,3],sort(y.c[,2])) #Daniel added this based on his data frame and I'm not sure what he was doing so mine do not look correct for my dataset
+#GOT IT, so y.c is the confidence interval data matrix and the second column is the lower bound and the third column is the upper bound which is where y.ci comes from
+#mine still looks wacky but it must be my dataset not the actual code
 plot(z$x,z$y,type="p",pch=16,
 col="navy")
 abline(lm1)
@@ -61,7 +63,7 @@ plot(z$x,z$y,type="p",pch=16,
 col="navy")
 abline(lm1)
 polygon(x.pi,y.pi,density=NA,
-col="#0000ff22")
+col="#0000ff22") #same for PI as CI, code is correct and the data is just bad, but I made it up so it's to be expected
 ```
 
 Correlation and regression are related. If r=correlation coefficient, and we have the regression line, then:
