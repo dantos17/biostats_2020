@@ -1,0 +1,330 @@
+---
+title: "R for Dummies (sorry guys)"
+author: "Dani Antos"
+date: "7/9/2020"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Basics of R 
+
+This "tutorial" is going to be the very basics of R to get you started in a coding lifestyle. We're going to go over the basics of the basics here, but I'm going to include some more complicated examples later for application purposes and if we're all feeling good about what we've learned. This RMD/HTML file is on my Github, as well as any data that I've created for this tutorial, if you'd like to grab it and copy/paste my code chunks into your own R console to run it for yourself/save it/whatever.
+
+Goals for Today:
+
+* What is a working directory...?
+* What do the panes in my RStudio mean?
+* Packages (super brief)
+* What tf is Github?
+* How do I use Github?
+* Version control basics
+* R Markdown (my favorite thing about R and what brought you this tutorial)
+* Basic Commands and helpful hints
+* Making a cute graph
+
+**NOTE**: I have a PC, so while everything is similar in Macs in regard to R, it is not identical. 
+
+## Working Directory
+
+"Working directory" is a fancy way to say where your data is stored and where it's coming from. To determine your current working directory, use the getwd() function. To set a new working directory, you can do one of two things. You can use the setwd("") function, where the path to the directory is within the quotations, or in RStudio, you can use
+
+>*Session*>Set Working Directory>Choose Directory
+
+One thing that's important to note about the working directory that will come into play later is that if you open an R file (for example, to compare two chunks of code or refer back to something you did in a previous project) that was in a different working directory, your current code may save into the *old* working directory. Quick fix!: use Save As for your code to save to the current project instead of just Save. 
+
+Some people choose to have 1 working directory for all of their code, but I was taught/prefer to have working directories like any other folder on my PC, separated by projects, years, whatever. 
+
+## RStudio Panes
+
+RStudio should have the four panes visible when it launches as shown:
+
+![](C:/Users/dania/OneDrive/Documents/biostats_2020/RStudio.png)
+
+If you DON'T see these four panes (the items are mine so don't worry about that), here's what you should do:
+
+>View>Panes>Show All Panes (or Ctrl+Alt+Shift+0)
+
+You can also play around with what you want to see or don't want to see from that menu. There are also minimize/maximize buttons in the upper right corner of each pane that can be helpful as well. For example, when I'm taking notes in RMarkdown (more on this later so don't worry if this is confusing), the output of the code is shown right in the text editor, so I don't need to see the actual R console. In this case, I'll minimize my console pane so that I can see more of what I'm typing. 
+
+As I kind of alluded to, the upper left pane is the **text editor**. This is where you can write code that can be run in the console OR saved for later. This is one of the big difference between R and RStudio: R only has the console, so any code, variables, objects, etc. will NOT be saved if you want to go back to them at a later date. You can also write code directly from the text editor itself (ie. Atom is its own app), but I don't usually like to do this. The lower left pane is the **R console**, which is pretty self explanatory. This is where the code is actually run to get an output. The top right pane has a lot of different uses, but I only really use it for 3: you can see how many variables you have, what their names are, and what they are comprised of in the **Environment** tab; **History** is a list of all the previous code that you've run. You can also see this in the console, but the History tab doesn't have any output and a Search option in case you're hunting for a specific line of code that you can't seem to find anywhere. The **Git** tab is arguably the most important, specifically for saving your code to an online repository (see next section). This tab is basically a staging location for new files, images, and knitted HTML files that have been coded in R but not saved to the repository. R is smart enough to know what's already saved online, so the list will automatically be updated as you code. We'll go through more specifics of this in the **Github** section, so the most important takeaway of this tab for now is that this is where it lives. 
+
+The bottom right pane also has assorted functions: The **Files** tab, if used correctly, shows the files in the current working directory. You can open .R or .RMD files automatically from the Files tab, as well as data files, photos, etc. The **Plots** tab shows plots (duh), although this can become less relevant over time since it's also possible to see the plots in the text editor. **Packages** is a list of packages that you currently have installed. You can also load packages from this menu (or use the console). **Help** will be the tab that loads info if you use the question mark with a function, ex. "?abs()". Lastly, I have no idea what **Viewer** does. Sorry.
+
+## Packages (super brief)
+
+So hopefully you've all had some success with installing and loading packages, but here's a super quick rundown anyway. Two ways to install packages: 
+
+1. Use the Packages tab in the lower right pane, then hit "Install" 
+2. Go to Tools menu on the top of the screen, then "Install packages..."
+
+Here's what my window looks like:
+
+![](C:/Users/dania/OneDrive/Documents/biostats_2020/package.jpg)
+
+The "Install to Library" is where the packages will be saved on your computer. For Mac peeps, try to choose a system location, not a user location. For PC peeps, this happens automatically. ALWAYS make sure "Install dependencies" is checked; some packages require other packages to run properly, and this ensures that you have all the packages you need for smooth sailing. 
+
+Every package also has associated paperwork, including version of R required, who made it, included functions with details, etc. You can also get this info in RStudio itself, but I think it's just as easy to look online. For example, I googled the package ggplot2:
+
+![](C:/Users/dania/OneDrive/Documents/biostats_2020/ggplot2 googke.jpg)
+
+![](C:/Users/dania/OneDrive/Documents/biostats_2020/ggplot2 PDF.jpg)
+
+To load installed packages, you can use the library() function or the required() function. You can also use the checkboxes to the left of the package name in the Packages tab. If you're having problems loading packages, make sure the dependencies are installed and that your R version is up to date. 
+
+## Github
+
+Like I mentioned in my email, Github is a public forum where you can save both data files and code into a repository, which is basically just a folder. Github is also key in version control, aka saving code at different times and being able to distinguish them. Here's an example of what one of my repos looks like.
+
+![](C:/Users/dania/OneDrive/Documents/biostats_2020/github.jpg)
+
+The main area of the repo is all the files that I have saved, both code and data. When you "commit and push" (coming up soon) .RMD files or .R files to a repo, it will automatically update online. You can also upload data files from your computer in basically any format with the "Add file" button. You can also see the number of "commits" that I've made to this repo, and you can click "62 Commits" and you can see in more detail what was essentially saved during every commit. In order to make sure this doesn't get messed up, you're going to need to Pull the repository from Github to RStudio. But first, we need to help git (on your computer) interface with Github and RStudio. Go to the Tools menu, then "Shell...", this will open a terminal window. Then, type
+
+>>git config --global user.email *your email address* (that you used for Github)
+>>git config --global user.name *your Github username*
+
+![](C:/Users/dania/OneDrive/Documents/biostats_2020/terminal.jpg)
+
+Now we need to help git and RStudio interface together. Go to **Tools**>Global Options>Git/SVN>Check off "Enable version control interface for RStudio projects"
+
+Also, make sure that your Git executable path is correct (see mine below) and then create an RSA key.
+
+![](C:/Users/dania/OneDrive/Documents/biostats_2020/RSA Key.jpg)
+Now that git, Github, and RStudio can all work together, we can pull repositories from Github to RStudio and vice versa, and save our work. Here's how:
+
+1. Make a new repository on Github and make sure to initialize with a ReadMe File. 
+2. Click "New Project" in the menu above the top right pane. Then click "Version Control," and "from git repository." 
+3. Put in your repository URL copied from the Github website, and the Project Directory name (this should be automatic and is just the repository name). You can choose a parent directory for the repo, but you can also leave this blank. 
+
+You've cloned your repo! There should be .Rproj files and .gitignore files to indicate that RStudio and git are properly involved with the Github repo. Now that we have a repo, we can push and save files to it. Whenever you make changes to an existing file or add a new file, they'll show up on the **Git** tab on the upper right. New files will have two yellow question marks next to them, while modified files will have a blue M (for modified). When you're ready to save or *COMMIT* files to your repo, click the box and the icon should turn into a green A (for added). then, push the Commit button on the Git tab. Your window should look like this:
+![](C:/Users/dania/OneDrive/Documents/biostats_2020/commit.png)
+
+This function is actually pretty cool because R will tell you what's changed about the files (if they're modified) by green highlights (for additions) and red highlights (for deletions). You also *have* to write a commit message, in the top right corner. Note that mine is short, but somewhat related to what I added to my files. Then, hit commit, and this should pop up:
+![](C:/Users/dania/OneDrive/Documents/biostats_2020/commit message.jpg)
+
+Now, hit the Close button. The last thing we need to do is **Push** the changes up to our online repo. Just hit the green push arrow above the commit message box and you should be good to go. 
+
+**Troubleshooting**: Sometimes, you'll get a message that says "Your branch is ahead of the origin/master by one commit." This just means that whatever you're doing in RStudio is more ahead than what's in the online repo. Easy to fix! This means that you committed changes and forgot to "push" them. Hit push and see if the error goes away. The other option is to use the blue pull arrow. This will pull the files that are in the online repo to your local copy of the repository, and then try to re-commit. One of these has literally always worked for me, so if you have an issue that an extra "push" or "pull" doesn't fix, let me know and I can try to help but don't hold your breath. Sorry again. 
+
+## R Markdown
+
+God I love R Markdown. It's how I made this tutorial and truly has changed how I take notes in coding classes. .RMD files are a (better) equivalent of .R files, except you can include plain-text AND R code chunks and knit them into a single output document (HTML, PDF, word). Markdown has its own syntax rules for things like lists, bolding/italicizing, heading, etc. and you can find these rules online by either searching for something specific or reading an overview article like [this](https://daringfireball.net/projects/markdown/syntax). 
+
+RMD files require some packages, including:
+
+* {knitr}
+* {rmarkdown}
+
+To open a new RMD file, click the New File dropdown and then R Markdown. Here's what should open:
+![](C:/Users/dania/OneDrive/Documents/biostats_2020/RMD.jpg)
+
+Once you choose your output and title the file, hit OK and the new file will open much like a new .R file. The two main differences on the toolbar between .R and .RMD files are the **Knit** and **Insert** buttons. The **Insert** button will allow you to add chunks of R code that you can run and look at the output of all within the RMD file. These chunks are key because they're the only part of the document that can be run as code, the rest will be plain text. You can also name these chunks to help keep track of them if you have a big file. Here's an example and a screenshot of how the chunks work:
+
+```{r mean of a dataset}
+x <- c(3,15,35,1000,24,3)
+x
+mean(x)
+```
+![](C:/Users/dania/OneDrive/Documents/biostats_2020/R chunk.jpg)
+
+This is a screenshot of what the chunk looks like in my window. To run the chunk, click the green play button (underlined in red). This will run the WHOLE chunk. I would recommend trying this yourself, as the lines will turn green as they are run, and if something is wrong, the run cycle gets aborted and the particular problematic line of code will turn red instead. The code output is below the R chunk: I used two commands after defining the variable "x": I asked R to show me "x" and then asked it to calculate the mean, which is what the two lines of output show. The coding syntax is the same is it always would be. Go wild! When you're either done with your file or ready to commit, hit the **Knit** button, which will make one cohesive document. R will automatically halt the knitting process if there are any issues with your code, which can kind of suck but will ensure your code is accurate before you commit the changes to your repo. Then commit and push the files to your repo as before. 
+
+## Basic R Commands
+
+Now that we've gone through RStudio and Github basics, it's time to code!
+
+R can do almost unboundless things, and the good/bad thing is that R is going to do *exactly* what you tell it to. Meaning, if you have a typo, forget a command, or even add something as small as an extra comma, R isn't gonna do a dang thing for you. Objects in R can be classified as different types, including:
+
+* numeric (real numbers)
+* characters
+* integers
+* logical (true/false)
+* etc.
+
+If you have data in a variable, you can check what type it is by the function class(). 
+
+### Math in R
+
+R can perform all sorts of mathematical functions, including addition, subtraction, mean, SD, absolute value, factorial, etc. Here's some examples:
+
+```{r basic math}
+#using our previously defined "x"
+x
+x+5 #adds 5 to all values
+mean(x)
+factorial(4) 
+```
+Now let's do a fun **example**! Make a vector of jersey numbers of the 1980 US Olympic Hockey Team under the name "miracle" (I was watching Miracle while I made this tutorial). Here are the numbers for your convenience, and watch the movie if you haven't: 30,1,6,23,3,78,5,20,24,25,8,27,9,10,16,15,11,21,28,19. Now, find the mean, median, MAD, and SD of "miracle." Then, alternate multiplying each jersey number by -5 and 10 (ex. 30x-5, 1x10, etc.), and show the products as a single list, (HINT: you'll have to tell R to do both multiplications in a single step). Then, take the absolute value of this list.
+
+### Reading Data into R
+
+There are several ways to read data into R and several common data types that people use. We've already been introduced to tab delimited files, or .txt files. This essentially means that the data entries are separated by a tab spacing. There are also .csv files, where entries are separated by commas. Here's how you can read .txt and .csv files into RStudio. These are copies of the mouse volumes from Module 1, and I've added them onto my repo if you want to practice this yourself. To practice, you'll have to copy the data, paste it into an Excel file, and save it as a .txt or .csv file.
+```{r reading txt and csv files}
+setwd("C:/Users/dania/Documents/Pitt/BioStats/Module 1")
+csv <- read.csv("mouse_volumes.csv", header=TRUE)
+csv
+txt <- read.table("mouse_volumes.txt",sep="\t",header=T)
+txt
+```
+You can also read data in R directly from a Github link and the package {curl}. To do this, you need to click the file on Github, and hit the "raw" button.
+```{r reading from Github}
+library(curl)
+f <- read.table("https://raw.githubusercontent.com/dantos17/biostats_2020/master/assignment_2_sum.txt", sep="\t",header=T)
+f
+```
+
+How about another **example**? On my "biostats_2020" repo I have a file called "ice_cream.txt". It's 100% made up, but it's ice cream orders from 10 buses of 50 kids each. Read it into RStudio and find the following:
+
+* class of the data
+* list of the types of ice cream (hint: column names)
+* total number of kids who wanted Vanilla
+* mean of kids that ordered Strawberry
+* median of kids that ordered Peanut Butter
+
+### Helpful Hints and Tidbits
+
+Coding can be hard, especially if you want R to do something and aren't sure how to do it. Here are some common tricks that will be helpful. In addition, [stack overflow](https://stackoverflow.com/) is a website where you can search specific problems or ask questions to people who *actually* know what they're doing. AKA not me.
+
+* A **dollar sign** will pull out certain columns in a data frame. For example, if you have a table "x" with a column called "Volume," to pull out just this column, simply type: x$Volume. This can be used in functions, to make new variables, etc.
+* The function **c()** will combine values into a vector. This is helpful for literally almost anything, including making a variable with a bunch of random numbers, like I did earlier! This function *must* be included whenever you're making a list of values. 
+* **Parenthesis vs Brackets**: parentheses indicate a function, while brackets indicate a subset of a variable or data. When would you use brackets? Let's say we have a matrix "y" (no labels) and we only want the first three rows. Here's how we can do this:
+```{r matrix}
+y <- matrix(1:20, nrow = 5, ncol = 4) #the matrix function allows us to create a matrix
+#1:20 indicates that we want the matrix to be filled with the numbers 1 thru 20
+#nrow indicates the number of row, and ncol indicates the columns
+y #here's our matrix
+y1 <- y[c(1:3),] #making a new variable of just the first three rows of y, indicated by the brackets
+#in a matrix, rows and columns are indicated as [row,column], so this code is saying that we want to combine rows 1-3 of y, and the column part of the bracket is blank because we want to include all of them in our new matrix
+y1
+#NOTE: matrices in R automatically fill by columns, but if you want to fill by rows, you can do so like this:
+y2 <- matrix(1:20, nrow = 5, ncol = 4, byrow=T)
+y2
+```
+* **"\\"** is an *escape sequence*. This can be used in a few different ways, but essentially it's used as a break between code lines where you're using characters. I'll show this later in the plotting section, but for example, "\\n" will start a new line if you want to break up a sentence into two lines.  
+* the ls() function with nothing in the parenthesis will list all of the objects that you have in your current workspace. You can also see these from the Environment tab, but it's nice to have another option. To *remove* all of the objects in your workspace, use the rm() function. You have to put the name of the object within the parenthesis, or delete all of the object by using rm(list=(ls()).
+* you can use the **sort()** function to sort values in increasing or decreasing order if they aren't already in your data frame.
+```{r sort}
+sort(x)
+sort(x, decreasing = T) #default is decreasing=FALSE
+```
+* You can extract data from a vector or matrix using brackets or a function. 
+```{r extraction}
+y #using our y matrix from before
+y3 <- y[1,] #we only want row 1
+y3
+y4 <- y[,3]
+y4 #we only want column 3
+#we can also use the grep() function to specifically tell R which columns/rows we want to keep when the values are CHARACTERS
+```
+
+Who's ready for an **example**? This will be the last and most complicated before we move on to plotting. In my biostats_2020 repo, there is a file called "Country_data.txt". Read this file into RStudio and:
+
+* Sort the countries by population, starting with the highest population.
+* Give me a list (as output) of the 10 countries with the highest population and the 10 countries with the lowest populations (this is a huge data file so don't worry if it takes a minute for R to do this). *Hint*: check out the order() function if you're stuck. 
+* For each of the top 10 and bottom 10 lists, find: the mean of the populations, median, and population density (population/area).
+* Make a new object under the name "new" of the countries starting with the letters **A-F**. What are the median area and population sizes of these countries? *Hint*: there are multiple ways to do this.
+* Do the same as above except extract the 30 countries with the highest **populations** and put them under the name "q." 
+
+## Plotting in R using base packages and {ggplot2}
+
+### {base R graphics}
+
+Using R's built in packages to plot graphs is pretty easy, but can require multiple steps if it's a complicated graph. I'm going to go through what the commands in the plot() function mean, and then we'll jump right in.
+
+>plot(x, y, type= "", xlim= "", ylim= "", main= "", xlab= "", ylab= "", col= "", pch= ,cex= ,lty= lwd= )
+
+* **x** and **y** are just the data you want to plot
+* **type** is how you want data to be plotted; p=points, l=lines, b=both points and lines, etc. n=none, meaning that you'll just have the outline of the graph. This can be helpful for complicated graphs that you need to plot in stages
+* **xlim** and **ylim** are the limits or bounds of the x and y axis. The default for these is NULL, and will be processed automatically for the data in most cases. You can change these manually if you want to zoom in on a certain subset of points, althought I'm not sure why you would want to. To input your own values, you'll need to put it in the format of (min, max), where the max is larger than the min.
+* **main**, **xlab**, and **ylab** are labels for the title, x axis, and y axis, respectively. Here would be a circumstance where you might want to use the escape sequence "\\n" to make break a long title into two lines. Because these are character string, they have to go within quotation marks. 
+* **col** is the color that you want the points to be. You can use the numbers 1-8 (without quotation marks) to use colors that have already been notated, or you can type a color in (WITH quotation marks) that R recognizes. Black is the default and also corresponds with =1. 
+* **pch** and **cex** are both ways to customize points on the graph. **Pch** stands for "point character" and will change the way the points look on the graph. There are 25 options for pch that are already loaded into R, shown below. **Cex** stands for "character expansion" and it controls the size of the points (the default is 1).
+![](C:/Users/dania/OneDrive/Documents/biostats_2020/point_type.jpg)
+
+* **lty** and **lwd** are the same as pch/cex for lines instead of points. **Lty** stands for line type, and again, there are 6 pre-numbered line types in R, shown below. You can use the numbers 0-6, where 0 is blank, 1 is solid, etc. up the graph. **Lwd** is line width, and again, the default is set at 1.
+![](C:/Users/dania/OneDrive/Documents/biostats_2020/line_type.jpg)
+
+Now let's do some plotting to get a feel for the code:
+```{r plot with base}
+w <- c(1.1,2,3.5,3.9,4.2)
+h <- c(2,2.2,-1.3,0,0.2)
+plot(w,h)
+plot(w,h,type="l")
+plot(w,h,type="b")
+plot(w,h,type="b",main="My plot title",xlab = "X axis",ylab = "Y axis")
+plot(w,h,type="b",main="My plot title\nexcept on two lines",xlab = "X axis",ylab = "Y axis")
+plot(w,h,type="p",col="seagreen4",pch=7,cex=0.5)
+plot(w,h,type="p",col="seagreen4",pch=7,cex=3)
+plot(w,h,type="l",lty=5,lwd=2)
+```
+
+Like I mentioned above, you can also add components to a plot in a stepwise fashion. Let's jump right in:
+```{r plotting in steps}
+#we're going to use a larger dataset to explore here
+w1 <- 1:20
+h1 <- c(-1.49,3.37,2.59,-2.78,-3.94,-0.92,6.43,8.51,3.41,-8.23,
+-12.01,-6.58,2.87,14.12,9.63,-4.58,-14.78,-11.67,1.17,15.62)
+plot(w1,h1,type="n",main="") #type=n signifies that we just want the plotting area and main="" tells R we don't want a title
+#let's say that we want to make a line to separate points that are above y=0
+abline(h=0, col=5, lty=1, lwd=2)
+#now, we want to plot the points where y is less than or equal to 0 as purple stars
+points(w1[h1<=0],h1[h1<=0],pch=11,col="purple")
+#next, we're going to plot points with y greater than or equal to 0 as dark green diamonds
+points(w1[h1>=0],h1[h1>=0],pch=18,col="darkgreen")
+#now we can connect the points with a line
+lines(w1,h1,lty=4)
+#we can use the legend() function to add a legend of what everything means
+legend("bottomleft", 
+       legend=c("y=0","Negatives","Positives"),
+              pch=c(NA,11,18), lty=c(1,NA,NA),
+              col=c(5,"purple","darkgreen"), lwd=c(2,NA,NA),
+       pt.cex=c(NA,1,1))
+#the legend can be a little confusing but the first command is telling R where we want the legend (bottom left), then the legend names (legend=), what the points look like (pch=; for lines, put an NA value), the line type (lty=; if points, use NA), colors (col=; can be a combo of numbers and names), line width, and point size
+```
+And there's our final product!
+
+### {ggplot2}
+
+Now let's get into using the package {ggplot2}. We're going to use the same dataset as above to compare R's base package with ggplot2. ggplot2 is ideal for more complicated plots because you can save different versions of the plot under different names to save them (which you can't do with the base graphics) and you can add components to the graph in the same line of code. GGplot2 uses "geoms" to add lines, points, etc. to the graph, and the base plot uses the function qplot() (for quick plot). Here's an example:
+
+>qplot(w1,h1,geom="blank") + geom_point() + geom_line()
+
+* the qplot() function above will do the same thing as "plot(w1,h1,type="n")", resulting in an empty graphical area
+* geom_point() and geom_line() will add the points and lines to the graph. You can look at the ggplot2 package info for the exhaustive list of geom options
+
+Let's work through the previous example:
+```{r ggplot2}
+library(ggplot2)
+w1 <- 1:20
+h1 <- c(-1.49,3.37,2.59,-2.78,-3.94,-0.92,6.43,8.51,3.41,-8.23,
+-12.01,-6.58,2.87,14.12,9.63,-4.58,-14.78,-11.67,1.17,15.62)
+myqplot <- qplot(w1,h1,geom="blank") #storing this plot as "myqplot" will allow us to add different elements that aren't permanent if we decide we don't like the color, shape, etc.
+myqplot + geom_point(size=3,shape=11,color="purple") +geom_line(size=1,lty=4)
+#as you can see, the commands for size, shape, and color of points and lines are different in ggplot2, HOWEVER, this package is pretty smart and will also recognize the base graphic commands, ex. "lty=4" in my geom_line() command
+
+#now we're going to make the colored points as before using ggplot2
+#in ggplot2, this sort of things is called mapping aesthetics, which will come into play during our code 
+ptype <- rep(NA,length(x=w1)) #we're replicating our values
+ptype[h1<=0] <- "Negative" #anything with a y less than or equal to 0 is negative
+ptype[h1>=0] <- "Positive" #anything with a y greater than or equal to 0 is positive
+ptype <- factor(x=ptype) #classifying the factors as what we said above, aka positive and negative
+ptype #the output here will be each value classified by it's Y value, positive or negative
+
+qplot <- qplot(w1,h1,color=ptype,shape=ptype) #doing a qplot will randomly assign shapes and colors based on the classifications of the data. we can add the line at y=0 as follows
+qplot + geom_hline(mapping = aes(yintercept=0), color = 5, lwd = 2)
+```
+
+Let's do one last **example**: Use the values 1-30 as your X values and the following for your Y values: 5,12,-10,-4,17,25,-2,3,-2.5,7.4,10.5,11,-11,-5.6,1.4,0.2,-0.7,18,-3,12.3,4.9,-7,30,1.2,-3.5,11,17,-6,-8,2.2
+
+Using the base R graphics, graph the data with the following specifications
+
+* The "optimal range" for this graph will be values where 5<x<12 and -6=<y<=6. Plot horizontal and vertical lines on the graph to signify this optimal range. **HINT**: to plot lines that don't span the whole width of the graph, use the segments() command.
+* Plot the points based on the following groups: optimal X and Y; optimal Y but X<5 or X>12; Y<=-6; Y>=6. These should all be different colors and shapes but you can choose.
+* Title your graph and axes, and make a legend
+
+Using ggplot2, plot the optimal range lines as above and plot the points in the groups above. (So basically do the same thing).

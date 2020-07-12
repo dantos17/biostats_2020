@@ -1,0 +1,104 @@
+---
+title: "Example Code Answers"
+author: "Dani Antos"
+date: "7/9/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Example 1 (Miracle)
+
+```{r miracle}
+miracle <- c(30,1,6,23,3,78,5,20,24,25,8,27,9,10,16,15,11,21,28,19)
+miracle
+mean(miracle)
+median(miracle)
+mad(miracle)
+sd(miracle)
+product <- miracle*c((-5), 10)
+product
+abs(product)
+```
+## Example 2 (Ice Cream)
+
+```{r ice cream}
+yum <- read.table("https://raw.githubusercontent.com/dantos17/biostats_2020/master/ice_cream.txt", sep="\t",header=T)
+yum
+class(yum)
+names(yum)
+vanilla <- yum$Vanilla
+sum(vanilla)
+sum(yum$Vanilla)
+mean(yum$Strawberry)
+median(yum$Peanut.Butter)
+```
+
+## Example 3 (Country)
+
+```{r country}
+f <- read.table("https://raw.githubusercontent.com/dantos17/biostats_2020/master/Country_data.txt", sep="\t",header=T)
+f
+f1 <- f[order(f$population),]
+lo <- f1[c(1:10),]
+lo
+f2 <- f[order(-f$population),]
+hi <- f2[c(1:10),]
+hi
+
+summary(lo)
+mean(lo$population)
+median(lo$population)
+lo$population/lo$area
+
+summary(hi)
+mean(hi$population)
+median(hi$population)
+hi$population/hi$area
+
+new <- f[grep("^[A-F]", f$country),]
+new
+summary(new)
+
+q <- f2[c(1:30),]
+q
+summary(q)
+```
+
+## Example 4 (graphing)
+
+```{r base R graphics}
+x.1 <- 1:30
+y.1 <- c(5,12,-10,-4,17,25,-2,3,-2.5,7.4,10.5,11,-11,-5.6,1.4,0.2,-0.7,18,-3,12.3,4.9,-7,30,1.2,-3.5,11,17,-6,-8,2.2)
+plot(x.1,y.1,type="n",main="My graph title",xlab="X axis",ylab="Y axis")
+abline(h=-6, col="red", lty=2, lwd=2)
+abline(h=6, col="red", lty=2, lwd=2)
+segments(x0=c(5,12),y0=c(-6,-6),x1=c(5,12),y1=c(6,6),col="green",lty=3,
+lwd=2)
+points(x.1[y.1<=-6],y.1[y.1<=-6],pch=16,col="purple")
+points(x.1[y.1>=6],y.1[y.1>=6],pch=18,col="navy")
+points(x.1[(x.1>=5&x.1<=12)&(y.1>-6&y.1<6)],y.1[(x.1>=5&x.1<=12)&(y.1>-6&y.1<6)],pch=13,col="magenta")
+points(x.1[(x.1<5|x.1>12)&(y.1>-6&y.1<6)],y.1[(x.1<5|x.1>12)&(y.1>-6&y.1<6)])
+legend("topright", 
+       legend=c("Upper Bound","Lower Bound","Horizontal Bounds","Optimal","Optimal Y, not X","Y too large","Y too small"),
+              pch=c(NA,NA,NA,16,18,13,1), lty=c(2,2,3,NA,NA,NA,NA),
+              col=c("red","red","green","purple","navy","magenta","black"), lwd=c(2,2,2,NA,NA,NA,NA),
+       pt.cex=c(NA,NA,NA,1,1,1,1))
+```
+```{r ggplot2}
+require(ggplot2)
+ptype <- rep(NA,length(x=x.1)) 
+ptype[y.1<=-6] <- "Y too small" 
+ptype[y.1>=6] <- "Y too large"
+ptype[(x.1>=5&x.1<=12)&(y.1>-6&y.1<6)] <- "Optimal"
+ptype[(x.1<5|x.1>12)&(y.1>-6&y.1<6)] <- "Optimal Y, not X"
+ptype <- factor(x=ptype) 
+ptype 
+
+qplot <- qplot(x.1,y.1,color=ptype,shape=ptype,main="My graph title",xlab="X axis",ylab="Y axis")
+qplot + geom_hline(mapping = aes(yintercept=-6), color = "red", lwd = 1) + geom_hline(mapping = aes(yintercept=6), color = "red", lwd = 1) + geom_segment(mapping = aes(x=5,y=-6,xend=5,yend=6), color = "green", lwd = 1) + geom_segment(mapping = aes(x=12,y=-6,xend=12,yend=6), color = "green", lwd = 1)
+```
+
+
