@@ -1,0 +1,58 @@
+---
+title: "Assignment 3"
+author: "Dani Antos"
+date: "7/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Assignment 3
+
+Going to use a linear regression model for each cell population as the dependent variable. It's going to be a multiple regression with interactions, but there doesn't need to be quadratics involved (I don't think)
+
+Y = B0 + B1(ATP6) + B2(COX1) + B3(CYTB) + B4(ND4) + B5(ND5) + B6(ATP6xCOX1) + B7(ATP6xCYTB) + B8(COX1xCYTB) + B9(COX1xND5) + B10(CYTBxND5) + B11(ND4xND5) + B12(ATP6xCOX1xCYTBxND4xND5)
+
+```{r}
+setwd("C:/Users/dania/Documents/Pitt/BioStats/Module 3")
+z <- read.table("t_cells.txt",sep="\t",header=T)
+CD.3 <- lm(CD3.pct ~ ATP6 + COX1 + CYTB + ND4 + ND5 + ATP6*COX1 + ATP6*CYTB + COX1*CYTB + COX1*ND5 + CYTB*ND5 + ND4*ND5 + ATP6*COX1*CYTB*ND4*ND5, data=z, na.rm=TRUE)
+summary(CD.3)
+
+anova(CD.3)
+library(car)
+Anova(CD.3, type=2)
+qqnorm(CD.3$residuals)
+qqline(CD.3$residuals)
+
+CD.8 <- lm(CD8.pct ~ ATP6 + COX1 + CYTB + ND4 + ND5 + ATP6*COX1 + ATP6*CYTB + COX1*CYTB + COX1*ND5 + CYTB*ND5 + ND4*ND5 + ATP6*COX1*CYTB*ND4*ND5, data=z, na.rm=TRUE)
+summary(CD.8)
+
+anova(CD.8)
+library(car)
+Anova(CD.8, type=2)
+qqnorm(CD.8$residuals)
+qqline(CD.8$residuals)
+
+FOXP3 <- lm(FOXP3.pct ~ ATP6 + COX1 + CYTB + ND4 + ND5 + ATP6*COX1 + ATP6*CYTB + COX1*CYTB + COX1*ND5 + CYTB*ND5 + ND4*ND5 + ATP6*COX1*CYTB*ND4*ND5, data=z, na.rm=TRUE)
+summary(FOXP3)
+
+anova(FOXP3)
+library(car)
+Anova(FOXP3, type=2)
+qqnorm(FOXP3$residuals)
+qqline(FOXP3$residuals)
+
+CD31 <- lm(CD31.pct ~ ATP6 + COX1 + CYTB + ND4 + ND5 + ATP6*COX1 + ATP6*CYTB + COX1*CYTB + COX1*ND5 + CYTB*ND5 + ND4*ND5 + ATP6*COX1*CYTB*ND4*ND5, data=z, na.rm=TRUE)
+summary(CD31)
+
+anova(CD31)
+library(car)
+Anova(CD31, type=2)
+qqnorm(CD31$residuals)
+qqline(CD31$residuals)
+
+```
+
