@@ -1746,9 +1746,8 @@ txt</code></pre>
 ## 30                                                                                                                                  
 ## 31                                                                                                                                  
 ## 32</code></pre>
-<p>You can also read data in R directly from a Github link and the package {curl}. To do this, you need to click the file on Github, and hit the “raw” button.</p>
-<pre class="r"><code>library(curl)
-f &lt;- read.table(&quot;https://raw.githubusercontent.com/dantos17/biostats_2020/master/assignment_2_sum.txt&quot;, sep=&quot;\t&quot;,header=T)
+<p>You can also read data in R directly from a Github link. You can use the package {curl}, but base R can also perform this function. To do this, you need to click the file on Github, and hit the “raw” button.</p>
+<pre class="r"><code>f &lt;- read.table(&quot;https://raw.githubusercontent.com/dantos17/biostats_2020/master/assignment_2_sum.txt&quot;, sep=&quot;\t&quot;,header=T)
 f</code></pre>
 <pre><code>##    Patient  X Dose X.1 CD4mem X.2 CD4eff X.3 CD4naive X.4 CD8mem X.5 CD8eff X.6
 ## 1   01-001 NA  600  NA  38.10  NA  25.40  NA   -11.77  NA  21.58  NA -20.57  NA

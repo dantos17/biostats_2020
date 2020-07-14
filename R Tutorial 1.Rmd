@@ -171,9 +171,8 @@ csv
 txt <- read.table("mouse_volumes.txt",sep="\t",header=T)
 txt
 ```
-You can also read data in R directly from a Github link and the package {curl}. To do this, you need to click the file on Github, and hit the "raw" button.
+You can also read data in R directly from a Github link. You can use the package {curl}, but base R can also perform this function. To do this, you need to click the file on Github, and hit the "raw" button.
 ```{r reading from Github}
-library(curl)
 f <- read.table("https://raw.githubusercontent.com/dantos17/biostats_2020/master/assignment_2_sum.txt", sep="\t",header=T)
 f
 ```
