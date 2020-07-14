@@ -20,13 +20,15 @@ setwd("C:/Users/dania/Documents/Pitt/BioStats/Module 3")
 z <- read.table("t_cells.txt",sep="\t",header=T)
 CD.3 <- lm(CD3.pct ~ ATP6 + COX1 + CYTB + ND4 + ND5 + ATP6*COX1 + ATP6*CYTB + COX1*CYTB + COX1*ND5 + CYTB*ND5 + ND4*ND5 + ATP6*COX1*CYTB*ND4*ND5, data=z, na.rm=TRUE)
 summary(CD.3)
-
+cor(z)
+plot(z)
 anova(CD.3)
 library(car)
 Anova(CD.3, type=2)
 qqnorm(CD.3$residuals)
 qqline(CD.3$residuals)
-
+library(effects)
+plot(effects(CD.3))
 CD.8 <- lm(CD8.pct ~ ATP6 + COX1 + CYTB + ND4 + ND5 + ATP6*COX1 + ATP6*CYTB + COX1*CYTB + COX1*ND5 + CYTB*ND5 + ND4*ND5 + ATP6*COX1*CYTB*ND4*ND5, data=z, na.rm=TRUE)
 summary(CD.8)
 
