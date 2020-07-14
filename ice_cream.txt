@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Bus ID	Vanilla	Chocolate	Strawberry	Cookie Dough	Peanut Butter
 01-001	10	10	10	10	10
 01-002	5	25	3	4	13
@@ -9,3 +10,16 @@ Bus ID	Vanilla	Chocolate	Strawberry	Cookie Dough	Peanut Butter
 01-008	19	15	2	6	8
 01-009	4	1	3	27	15
 01-010	13	12	5	9	11
+=======
+Bus ID	Vanilla	Chocolate	Strawberry	Cookie Dough	Peanut Butter
+01-001	10	10	10	10	10
+01-002	5	25	3	4	13
+01-003	2	0	40	5	3
+01-004	15	6	6	20	3
+01-005	0	0	0	30	20
+01-006	1	36	4	8	1
+01-007	7	18	9	13	3
+01-008	19	15	2	6	8
+01-009	4	1	3	27	15
+01-010	13	12	5	9	11
+>>>>>>> b77a5eba84bced33e9887745f12d3870a1777f59
