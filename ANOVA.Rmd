@@ -1,0 +1,130 @@
+---
+title: "ANOVA"
+author: "Dani Antos"
+date: "7/17/2020"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Analysis of Variance
+
+While confusing, ANOVAs are really similar to linear models, basically a regression on indicator variables. The difference is the nature of the endpoint; ex. ANOVAs look at continuous variables as the response, logistic regressions use binary (0/1), Poisson uses counts (ex. does an animal respond to treatment, yes or no?), and proportional hazards regression look at survival endpoints. Before you run a test, consider your **output**. This doesn't really come into play for things like unsupervised clustering, just classical statistics. 
+
+ANOVAs are like t-tests with **more than one class** and the *F-distribution* is a more generalized t-distribution. Instead of one null and one alternative hypothesis like in t-tests, there can be any number of hypotheses in ANOVAs. The **null hypothesis** is that none of the interventions (predictors) make any difference on the mean, while the **alternative hypothesis** states that at least one of the means with one of the predictors changes the mean (can be more than one). One of the outputs is the F statistic which is compared to the F distribution. The Classic ANOVA assumes that **the standard deviation in all of the class populations is the same**.
+
+Where does the F statistic actually come from? 
+
+* the **mean squared error** (MSE) is the averaged variance for all of the ANOVA classes (k, predictors); NOT the standard deviation, but this estimates the population standard deviation
+* the **mean squares between effects** (MSB) takes the absolute population mean (grand mean) and calculates the averaged squared distance of each class mean from the population mean. If the indicators don't have an effect on the mean, the MSB will be very small; the larger the MSB is, the more the indicators actually make a difference in the endpoints. 
+* the F statistic is MSB/MSE; if MSB is *large* (interventions are making a difference), the ratio will be high and the null hypothesis will be **rejected**
+* the F distribution has two sets of degrees of freedom: numerator degrees of freedom *ndf* is calculated as k-1 and denominator degrees of freedom *ddf* is calculated as n-k
+
+![](C:/Users/dania/Documents/Pitt/BioStats/Module 4/F-dist.jpg)
+
+If F is above 4 (in the small tail), we will reject the null hypothesis. R and GraphPad will calculate the F statistic and give a p value so you don't actually need to know this specific distribution.
+
+For our examples, we're using a dataset where not a ton is known but animals are either sick or healthy, and we're looking at MFI of macrophages, pDCs, and mDCs with CD40 or CD80 as costimulatory molecules.
+```{r reading data in}
+setwd("C:/Users/dania/Documents/Pitt/BioStats/Module 4")
+z <- read.table("fig4b.txt",sep="\t",header=T, stringsAsFactors = T)
+head(z)
+plot(z$cell.type,z$mfi)
+library(ggplot2)
+plot.z <-ggplot(z, aes(x=cell.type, y=mfi)) + 
+  geom_dotplot(binaxis='y', stackdir='center')
+plot.z #not what daniel used but he had a user function
+#from the data we can see that pDCs have a way lower MFI than the other two cell types
+```
+
+In the output we are looking for:
+
+* MSB = Mean sq(group)
+* MSE = Residual standard error, sigma^2
+* F = MSB/MSE
+* ndf = Df(group)
+* ddf = Df(Residuals)
+* p value = Pf(>F), 1-pf(F value, Df(group), Df(Residuals))
+
+```{r}
+lm.1 <- lm(mfi~cell.type,data=z) #can also use aov() function to get ANOVA table automatically
+summary(lm.1) #macrophages are taken as the reference aka base level, and then pDCs and mDCs are the indicator variables -- you can change this to make the control group the reference group
+anova(lm.1)
+
+qqnorm(lm.1$residuals,col="navy")
+qqline(lm.1$residuals)
+
+```
+
+In the summary of lm.1, the estimate refers to the MFI mean for the designated population. Because the reference level is the macrophages, the mean MFI for that population is given and then the mean MFI for the other two populations is given in relation to the macrophages. The p value for macrophages is just a test to make sure the estimate is different from 0. the mDC p value is not significant because the means are close, and the pDC p value is significant because the mean of macs and pDCs is not close at all. The summary also gives a p value for the entire model next to the F statistic. You have to be careful in using these p values though, because each p value takes the other indicator variables into account when being calculated, for example: the **pDC p value** is conditional on having the other two cell types in the model. 
+
+The *ANOVA* table solves this problem by only including a p value for cell type as a whole. The p value is for the null hypothesis that ALL the cell types are the same, which they clearly aren't. The one-way ANOVA is a generalization of the t-test because it doesn't say which cell type is different or driving the difference. 
+
+Now we can check the qqplot for normality of the data. There are outliers here, which can mean one of three things:
+
+* there are interactions in the dataset that aren't being considered
+* the relationships aren't linear, need a more complicated model
+* there are variables in the dataset that make a difference but aren't being considered in the current model
+* it could also be a situation of a variable not being considered AT ALL; for example, if sex is important to how a drug works but the males and females are lumped together and not noted anywhere in the dataset
+
+The conclusion either way given the residuals plot tells us that the one-way ANOVA is too simple to provide a good fit given the model and the dataset.
+
+## Welch's Variant
+
+As with t tests, there is a **Welch's variant** for the one way ANOVA that will adjust the degrees of freedom in case the standard deviation changes among groups. For this example, it looks like the pDC SD is much smaller than the other two, so Welch's variant would be a better option. It is often found that the mean is *proportional to the standard deviation*- if you have a higher mean, you get a larger spread. Welch's variant, the Kruskal-Wallis test, or a log transformation can fix this.
+
+```{r Welch variant}
+oneway.test(mfi~cell.type,data=z)
+```
+
+## Kruskal-Wallis Test
+
+If the distribution within the classes is non-Gaussian, especially when sample size is small, the non-parametric **Kruskal-Wallis** test is a good alternative. It's basically like using the Wilcoxon test as a t test alternative. If the data *is* Gaussian, using this test will result in a loss of some power.
+
+```{r Kruskal-Wallis}
+kruskal.test(mfi~cell.type,data=z) #rank based test
+```
+
+**General workflow for running an ANOVA**:
+
+1. Run *anova()* and look at the summary and qqplot for normality
+2. If qqplot has outliers, run the one-way ANOVA with Welch's variant, *oneway.test()*, which does not assume homoscedasticity (same SD for all classes)
+3. If non-Gaussian, use Kruskal-Wallis test, *kruskal.test()*
+
+## Post-Hoc Comparisons
+
+If we reject the null hypothesis that ALL of the means are the same, then we are left to figure out which means are different, which can mean lots of pairwise comparisons depending on the number of classes (k). **Multiple comparison adjustments** can be made to lower the possibility of rejecting the null hypothesis randomly just because there are too many pairwise tests. This is not necessary if the F statistic does not correspond with rejecting the null hypothesis. 
+
+### Bonferroni Adjustment
+
+If you have "*m*" pairwise null hypotheses and want to test them at significance level *a* (alpha), multiply each p value by m. If the new p value is less than alpha, then it is significant.
+
+This adjustment is easy to perform but it's incredibly conservative, meaning that some pairwise tests could actually be significant in real time but cut out by the Bonferroni adjustment.
+
+### Tukey's Adjustment
+
+This is more widely accepted, requires the {multcomp} package under the glht() function. GLHT stands for general linear hypothesis testing, and the multcomp package has a lot of good functions for this general statistical idea. These will be more protected than doing 3 separate t tests.
+
+```{r Tukey}
+require(multcomp)
+lm.1.tukey <- glht(lm.1,linfct = mcp(cell.type="Tukey")) #designate which group needs the adjustment
+summary(lm.1.tukey)
+```
+
+### Dunnett's Adjustment
+
+If you have a single control that's clearly the control that you want the other classes to be compared to, use the Dunnett's adjustment. It's less conservative than Tukey's adjustment, but the control group has to be identified with the *relevel()* function. 
+
+```{r Dunnett}
+z$cell.type <- relevel(z$cell.type,"pDC")
+
+lm.1 <- lm(mfi~cell.type-1,data=z)
+lm.1.dunnett <- glht(lm.1,linfct = mcp(cell.type="Dunnett")) #still have to say which group needs to be adjusted
+summary(lm.1.dunnett) #in the output, the control group is always the second term in the subtraction
+```
+
