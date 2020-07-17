@@ -1516,8 +1516,8 @@ div.tocify {
 </div>
 
 
-<div id="analysis-of-variance" class="section level2">
-<h2>Analysis of Variance</h2>
+<div id="one-way-anova" class="section level1">
+<h1>One-Way ANOVA</h1>
 <p>While confusing, ANOVAs are really similar to linear models, basically a regression on indicator variables. The difference is the nature of the endpoint; ex. ANOVAs look at continuous variables as the response, logistic regressions use binary (0/1), Poisson uses counts (ex. does an animal respond to treatment, yes or no?), and proportional hazards regression look at survival endpoints. Before you run a test, consider your <strong>output</strong>. This doesn’t really come into play for things like unsupervised clustering, just classical statistics.</p>
 <p>ANOVAs are like t-tests with <strong>more than one class</strong> and the <em>F-distribution</em> is a more generalized t-distribution. Instead of one null and one alternative hypothesis like in t-tests, there can be any number of hypotheses in ANOVAs. The <strong>null hypothesis</strong> is that none of the interventions (predictors) make any difference on the mean, while the <strong>alternative hypothesis</strong> states that at least one of the means with one of the predictors changes the mean (can be more than one). One of the outputs is the F statistic which is compared to the F distribution. The Classic ANOVA assumes that <strong>the standard deviation in all of the class populations is the same</strong>.</p>
 <p>Where does the F statistic actually come from?</p>
@@ -1601,7 +1601,6 @@ qqline(lm.1$residuals)</code></pre>
 <li>it could also be a situation of a variable not being considered AT ALL; for example, if sex is important to how a drug works but the males and females are lumped together and not noted anywhere in the dataset</li>
 </ul>
 <p>The conclusion either way given the residuals plot tells us that the one-way ANOVA is too simple to provide a good fit given the model and the dataset.</p>
-</div>
 <div id="welchs-variant" class="section level2">
 <h2>Welch’s Variant</h2>
 <p>As with t tests, there is a <strong>Welch’s variant</strong> for the one way ANOVA that will adjust the degrees of freedom in case the standard deviation changes among groups. For this example, it looks like the pDC SD is much smaller than the other two, so Welch’s variant would be a better option. It is often found that the mean is <em>proportional to the standard deviation</em>- if you have a higher mean, you get a larger spread. Welch’s variant, the Kruskal-Wallis test, or a log transformation can fix this.</p>
@@ -1692,6 +1691,7 @@ summary(lm.1.dunnett) #in the output, the control group is always the second ter
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## (Adjusted p values reported -- single-step method)</code></pre>
+</div>
 </div>
 </div>
 

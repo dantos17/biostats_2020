@@ -12,7 +12,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Analysis of Variance
+# One-Way ANOVA
 
 While confusing, ANOVAs are really similar to linear models, basically a regression on indicator variables. The difference is the nature of the endpoint; ex. ANOVAs look at continuous variables as the response, logistic regressions use binary (0/1), Poisson uses counts (ex. does an animal respond to treatment, yes or no?), and proportional hazards regression look at survival endpoints. Before you run a test, consider your **output**. This doesn't really come into play for things like unsupervised clustering, just classical statistics. 
 
