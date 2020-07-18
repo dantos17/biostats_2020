@@ -128,3 +128,95 @@ lm.1.dunnett <- glht(lm.1,linfct = mcp(cell.type="Dunnett")) #still have to say 
 summary(lm.1.dunnett) #in the output, the control group is always the second term in the subtraction
 ```
 
+# Two-Way ANOVA
+
+Again, the endpoint or response variable is continuous and the predictors can be categorical (ex. Drug 1 and Drug 2). For the t-test and the one-way ANOVA, there was one categorical variable with 2 (t-test) or 3 (ANOVA) possible values, and for the two-way ANOVA, there are **two** categorical variables. Using Drug 1 and Drug 2 as an example, there are 4 different combinations of treatment that can each have a different outcome. 
+
+The *null hypothesis* is always the same: are the *means* of each treatment group the **same**? Aka, neither drug will make a difference. The other questions we can ask are whether Drug 1 or Drug 2 make a difference in the model or if the two drugs work in synergy.
+
+## Additive Model
+
+The **additive model** is one explanation of the parameters on the model. In this drug example, there are four relevant equations that correspond to each treatment group:
+
+* mean(control) = B0
+* mean(Drug 1) = B0 + B1; B1 is the effect of Drug 1 on Y
+* mean(Drug 2) = B0 + B2; B2 is the effect of Drug 2 on Y
+* mean(combo) = B0 + B1 + B2; assuming that the effect of both drugs is the same as adding the effect of each drug alone, which may NOT always be true
+
+```{r example}
+set.seed(2345)
+#creating the effects of the drugs using vectors
+d1 <- c(rep(0,20),rep(1,20))
+d2 <- c(rep(0,10),rep(1,10),rep(0,10),rep(1,10))
+y <- 100+10*d1+15*d2+7*d1*d2+rnorm(length(d1),0,20) #simulation model with 100 animals mean; the numbers are the B values and rnorm is the noise component
+d1 <- as.factor(d1)
+d2 <- as.factor(d2)
+table(d1,d2)
+
+lm.5 <- lm(y~d1*d2) #asterisk means that we want each effect separately PLUS d1*d2; we don't actually care about the coefficients
+anova(lm.5)
+summary(lm.5)
+```
+From the ANOVA table, we can see that the effect of each d1 and d2 are statistically significant, but the interaction of the two is not. In this case, we do know that the interaction actually is significant, but the stochastic component that we included has a lot of noise, which is what actually takes significance away from the interaction. If looking for synergistic effects is the point of the experiment, looking at the noise component is SUPER important. 
+```{r switching predictor input}
+library(car)
+Anova(lm.5,type=2)
+#Daniel got very confused here, but Anova gives conditional p values not sequential
+
+lm.6 <- lm(y~d2*d1)
+anova(lm.6) #switching d1 and d2 and running a sequential anova may give different significance values, but it doesn't here since the experiment is balanced
+```
+
+Using the data from the one way ANOVA, we can run the same type of tests with a more complicated dataset. Here, there are 4 types of co-stimulatory markers (CD40, CD80, CD86, CD274) and 3 types of cells (macrophages, pDCs, mDCs). 
+
+```{r}
+lm.2 <- lm(mfi~cell.type+co.stim.mol,data=z) #same as one-way with the addition of costimulatory markers
+summary(lm.2)
+anova(lm.2)
+```
+
+Daniel's code shows macrophages as being the reference, but here, the pDCs are the reference level. Again, the coefficients are all in relation to the reference. In the summary, the meaningful data are the R-squared values and the p-value for the whole model. The adjusted R-squared tells us that 65% of the variation is explained by the model, a significant percentage, and the whole model is significant. The individual numbers for each group are not necessarily important. 
+
+The ANOVA gives more meaningful information. This goes off of the idea that the co-stimulatory molecule and cell type are completely independent. For example, the co-stimulatory molecule present will not impact the cell type. The ANOVA doesn't tell you anything about the effect on cell type on MFI if you *know* the co-stimulatory molecule. It also doesn't tell us in which direction the effect is (positive or negative).
+```{r}
+qqnorm(lm.2$residuals,col="navy")
+qqline(lm.2$residuals)
+```
+
+The qqplot is pretty good, but there are a few outliers as we can see from the graph. This could again mean that there are additional variables that we are not accounting for in our model, but you can't tell that from just the graph. From the graph, there are some observations that are *larger* than we would expect. 
+
+## Model with Interactions
+
+Another model to use instead of the additive model is the model with *interactions*. Using the simple drug example, here are the equations needed to explain the parameters in the model:
+
+* mean(control) = B0
+* mean(Drug 1) = B0 + B1; B1 is the effect of Drug 1 on Y
+* mean(Drug 2) = B0 + B2; B2 is the effect of Drug 2 on Y
+* mean(combo) = B0 + B1 + B2 + B3; each of the drugs has their own effect on Y and B3 is the effect of the interaction of both drugs on Y
+
+Given these set of equations, if **B3=0**, there is additivity, meaning that putting the two drugs together is the same as just adding their individual effects together. If **B3>0**, there is synergism, meaning that putting the drugs together has a greater effect than just the individual effects together. If **B3<0**, there is antagonism, meaning that the combination of drugs decreases the effect that you would expect by adding the individual effects together. In order to claim synergy, *B3>0 and statistically significant*. 
+
+**Interaction plots** can be visual aids in determining interactions between the predictors. 
+
+![](C:/Users/dania/Documents/Pitt/BioStats/Module 4/interaction.jpg)
+
+On the left, there is no interaction between Drug 1 and Drug 2 as shown by the parallel lines. Giving Drug 2 always increases the mean regardless of whether or not Drug 1 is present. On the right, Drug 3 has a suppressive effect on Drug 4. Drug 3 without Drug 4 does nothing, but the impact of Drug 4 in the presence of Drug 3 is greatly diminished. 
+
+Taking this info, we can apply it to our real example with cell types, co-stimulatory molecules, and MFI.
+
+```{r}
+lm.3 <- lm(mfi~cell.type*co.stim.mol,data=z)
+summary(lm.3)
+anova(lm.3)
+
+qqnorm(lm.3$residuals,col="navy")
+qqline(lm.3$residuals)
+```
+
+The output here is comparing all other conditions to the reference, in this case being pDCs and CD274. The reference can be thought of as the "baseline," and the others are in relation to that; cell type and the co-stimulatory molecules are the main effects, and the others are the interactions. The R-squared tells us that 73% of the variation in MFI is due to the cell type, co-stimulatory molecules, and the interactions between the two. The significance of the effect is also highly highly significant, indicating that we believe that these effects are not due to random variation. The ANOVA table tells us that both cell type and co-stimulatory molecules are significant predictors, but also that the interaction is significant. This means that knowing something about the cell type will tell you something about how the co-stimulatory molecule will relate to the MFI and vice versa. From this data, you CAN'T imply causation. 
+
+So what's the difference between a linear model and an ANOVA? *lm()* will describe the parameters and their coefficients while *anova()* describes the relationship between the variables. The difference becomes more important when the predictor has more than two categories (ex. more than yes/no). In ANOVAs, it is super important to be conscious of whether the p-values are conditional or sequential (Anova() vs anova()). 
+
+There can also be adjustments made for a predictor, which is essentially just subtracting out a mean. This is common in stats but you have to be careful.
+
+**Balanced vs Unbalanced experiments**: In our examples we've talked about having two drugs. A balanced experiment has the same number of observations in every experimental group and will give the most statistical power. This is pretty intuitive, but sometimes this can go wrong if animals die, etc. In an unbalanced experiment, the sequence of effects in the model can influence the results. If the experiment is unbalanced, it's not the end of the world, but you **have** to know if the p values are conditional or sequential. 
