@@ -1,0 +1,142 @@
+---
+title: "Dichotomous Endpoints"
+author: "Dani Antos"
+date: "7/26/2020"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# More on Regressions
+
+This set of lectures is also related to regressions, where **dichotomous endpoints** are binary. We're also going to be going back over regression models that we've already talked about. The key in deciding which type of regression to use is in determining what kind of data you have and what type of output you have. That being said, what we cover in this course is not exhaustive for the types of models needed for every single data type.
+
+## Dichotomous Variables
+
+Dichotomous or **binary** variables have only two outcomes where the subject *has* to be one or the other, for example: diseased or normal, response or no response, success or failure, etc. Using success/failure as as example, we want to use a Chi-squared or Fisher's exact test to examine the probability of success among 2+ experimental (ex. Drug 1 vs Drug 2) or observational (ex. sex, time) conditions. 
+
+### Chi-Squared Test
+
+Good option when there are only a few predictor levels, or only a few conditions. The output is either success or failure within a certain condition, so each animal has to fit perfectly within one of 2 categories based on what condition it has received. Total sample size here is the sum of all the rows and columns (success/failure by condition). The *chisq.test()* function performs a Chi-squared test in R, providing p-values or an odds ratio depending on the number of conditions. 
+
+### Fisher's Exact Test
+
+This is an alternative to the Chi-squared test. The layout is the same, but this test has better statistical properties than the Chi-square test when the sample size is relatively small. The function for this test is *fisher.test()* and again gives p-values or an odds ratio as output based on the number of conditions. 
+
+### Caveats to Chi-Square or Fisher's Exact
+
+One caveat to either the Chi-square or Fisher's exact test is that they require the data to be in a Row x Column format. Some examples of data tha will not fit this format include:
+
+* continuous predictor variable (ex. drug concentration)
+* treatment is separated by gender, say if male animals receive treatment and female animals receive a control
+* along similar lines, if both genders are in the treatment and control groups, but the response between males and females is of interest as well as response of the drug compared to the control
+
+In any of these cases, we would use a form of *generalized linear model* called a **logistic regression**. 
+
+## Logistic Regression
+
+Here once again, the response variable is dichotomous or binary, and can be coded as 0 or 1. R can code these outputs for you but it's easier to do it manually to minimize confusion. Predictors do NOT need to be re-coded, just the response. With this model, endpoints are y values and **pi(i)** is the probability that y(i) = 0 given fixed values for predictors. These values will be different for animals in different conditions, but this is exactly what we *want* to determine, not whether or not they actually responded (not all patients will respond to a treatment but we want to know the probability that they'll respond).
+
+Our example dataset is from AML patients with super high WBC counts. These patients will undergo leukapheresis to attempt and lower these counts, but even with this treatment some will still die. What we are interested in is what blood features increase the likelihood for death. The response variable is death within one week, where death is scored as 1. For each patient, we have the total bilirubin, platelet counts, and number of blasts in the peripheral blood. 
+
+```{r}
+setwd("C:/Users/dania/Documents/Pitt/BioStats/Module 5")
+all <- read.table("pheresis1.txt",sep="\t",header=T)
+head(all)
+
+par(mar=c(4,4,1,1),mfrow=c(1,3)) #mar trims off extra white space and mfrow tells R that we want one row and three columns worth of plots
+#each with statement then makes a separate plot for each dataset
+with(all,boxplot(T.bili~died.1.wk,xlab="Died Within One Week",
+	ylab="Total Bilirubin",xaxt="n")) #xaxt allows us to use Y and N instead of 0 and 1 to add more clarity to the graph
+axis(1,at=1:2,labels=c("N","Y")) #for the boxplot() function, data is plotted as y~x
+with(all,boxplot(Platelets~died.1.wk,xlab="Died Within One Week",
+	ylab="Platelet Count",xaxt="n"))
+axis(1,at=1:2,labels=c("N","Y"))
+with(all,boxplot(n.PB.BLASTS~died.1.wk,xlab="Died Within One Week",
+	ylab="# Peripheral Blood Blasts",xaxt="n"))
+axis(1,at=1:2,labels=c("N","Y"))
+```
+
+From the plots, we can see that the distributions are different even though the number of patients in each plot are the same. 
+
+Now getting into the logistic regression. We have three columns of predictors in the data table, meaning p=3. Here's the model:
+
+logit(pi(i)) = B0 + B1x1 + B2x2 + B3x3
+
+The right side is the same as any other linear model, but on the left side, we're looking for the probability that a patient will meet an early death. The *logit()* function takes everything between 0 and 1 and maps it to the real life -infinity to +infinity. Here's what a logit transformation looks like graphically:
+
+![](C:/Users/dania/Documents/Pitt/BioStats/Module 5/logit.jpg)
+
+Logit transformation of the data will provide an unique pi value for each y value. In order to determine the pi values, we need to get estimates for the B values, then use the inverse logit function. 
+
+> pi = logit^-1(B0 + B1x1 + B2x2 + B3x3)
+
+To do a logistic regression in R, we have to use the *glm()* function, meaning generalized linear model. Everything else is the same as what we've seen in linear models, but there needs to be an additional argument defining the nature of the endpoint (family="binomial"). 
+
+```{r}
+library(car)
+glm1 <- glm(died.1.wk~T.bili+Platelets+n.PB.BLASTS,family="binomial",data=all)
+summary(glm1)
+```
+
+The summary gives estimates for the Beta values along with the standard error, signifying how much confidence we can put into the estimate. The *z value*  is the estimate/standard error, and the larger the z value, the more confident we are that the beta coefficient is not 0. In the summary table, the p-values are **Type 2 Wald-type tests**, which is important to take note of in case you want a different type of p-value. These p-values are generally okay for a first statistical test, but the anova functions are more accurate and better to use. 
+
+```{r Type 1 LR}
+anova(glm1,test="LR")
+```
+
+The *anova()* function as coded above gives a sequential (type 1) likelihood ratio test. The **likelihood ratio** test is powerful when sample size is small. The predictors are ordered in the same order that we defined in the GLM, meaning that you can switch the order and change the output of the ANOVA. Either way, the Type 1 ANOVA probably isn't appropriate for the dataset.
+
+```{r Type 2 LR}
+Anova(glm1,type=2,test="LR")
+```
+
+This code will provide a conditional (Type 2) likelihood ratio test. The p-values generated are conditional on all of the other variables in the model. 
+
+Looking at the difference between the Type 1 and Type 2 likelihood ratios, the p-values are similar, though not identical, but significance remains the same using either test. Looking at the Type 2 Wald test and the Type 2 LR test, the Wald test p-values are consistently larger than the LR p-values, sometimes causing a loss of significance. 
+
+Our next question is: how good is the prediction?
+```{r}
+predict(glm1,type="response")
+par(mar=c(4,4,1,1),mfrow=c(1,1))
+#stripchart is a function for when one variable is continuous and one is discrete
+stripchart(predict(glm1,type="response")~all$died.1.wk,vertical=T,pch=1,col="navy",
+	xlim=c(0.5,2.5),xlab="Died Within 1 Week",ylab="Estimated P(Died Within 1 Week)",
+	xaxt="n")
+axis(1,at=1:2,c("N","Y"))
+```
+
+Looking at the predictions, our model isn't very good. The next step to making a better model is considering **interactions**. 
+```{r}
+glm2 <- glm(died.1.wk~T.bili+Platelets+n.PB.BLASTS+
+	T.bili:Platelets+T.bili:n.PB.BLASTS+Platelets:n.PB.BLASTS,
+	family="binomial",data=all)
+
+summary(glm2)
+
+Anova(glm2,type=2,test="LR")
+
+```
+
+From this output, none of the interactions seem to be significant, so adding them to the model won't do anything. 
+
+```{r}
+anova(glm1,glm2,test="LR") #this function tests all interactions together by combining both models
+```
+
+### Interpretation of Coefficients
+
+After estimating the coefficients, we can use them to calculate the odds. In the case of logistic regression, the odds equation is: pi/(1-pi), where there is a distinct odds for every probability output. The **odds ratio** is defined as how much the probability of an event changes when the variable has a one-unit increase. The odds ratio is most likely what would be reported in an article. One important note is that odds ratios are *unit dependent*. 
+
+```{r}
+exp(coef(glm1)) #odds ratio
+exp(confint(glm1)) #confidence intervals for the odds ratios
+```
+
+## ROC Curves
+
