@@ -140,3 +140,106 @@ exp(confint(glm1)) #confidence intervals for the odds ratios
 
 ## ROC Curves
 
+ROC stands for **receiver operating characteristic** and was originally coined during WWII for radar communication. ROC curves describe the tradeoff between sensitivity and specificity.
+>specificity = the likelihood of a true negative
+>sensitivity = the likelihood of a true positive
+
+It's easy to say that sensitivity is always 1, or everyone has a disease, but then the specificity is completely lost because you can't discriminate between positive and negative. For every experiment, there is an optimal tradeoff between sensitivity and specificity. ROC curves are plotted as *1-specificity* (x) by *sensitivity* (y), as shown below:
+
+![](C:/Users/dania/Documents/Pitt/BioStats/Module 5/ROC.jpg)
+
+Because the X axis is 1-specificity, we are essentially looking at the false negative rate compared to the true positive rate. If you have a totally **un-informative** marker, the line will lie on the horizontal axis, and if the marker is 100% **informative**, the line will go straight up vertically and over, like an upside down L; indicating that there is no cutoff between sensitivity and specificity. The graphic above has stepwise movements because of limited sample size.
+
+Using a logistic regression model where pi values are estimated, the sensitivity and specificity can be estimated using various *cutpoints*. The cutpoint has to be between 0 and 1, and sensitivity and specificity are estimated as follows:
+
+![](C:/Users/dania/Documents/Pitt/BioStats/Module 5/ROC 1.jpg)
+
+All of these models depend on a gold standard to compare against, which can be expensive or risky for the patient. Se = sensitivity and Sp = specificity, and both will always be between 0 and 1. 
+
+### Example
+
+We are using a made up example using markers M1 and M2 and how staining intensity of these two markers can predict disease.
+
+```{r}
+logit <- function(p) {x <- rep(NA,length(p)) 
+	x[(p>0)&(p<1)]<-log(p[(p>0)&(p<1)])-log(1-p[(p>0)&(p<1)])
+	x}
+	
+logit.inv <- function(x) {exp(x)/(1+exp(x))}
+
+y.height <- 4
+
+set.seed(5513)
+
+n <- 100
+m1 <- 300*rbeta(n,0.3,0.7)
+m2 <- 300*rbeta(n,0.5,0.5)
+hist(m1)
+hist(m2)
+
+e <- -3+0.02*m1+0.01*m2
+pi <- logit.inv(e)
+disease <- rbinom(n,1,pi)
+
+glm3 <- glm(disease~m1+m2,family="binomial")
+summary(glm3)
+anova(glm3,test="LRT")
+```
+
+We are not looking at interactions here, and are modeling the probability of getting 0 or 1 (in terms of disease). Again, the estimates in the summary table are the Beta coefficients, which can give odds ratios when taken to the "e" power. The **deviance** is a function of sample size that is analagous to R-squared in a traditional regression. 
+
+To plot the ROC curve, we need the {epiDisplay} package.
+```{r}
+library(epiDisplay)
+par(mfrow=c(1,1),mar=c(4,4,1,1))
+lroc(glm3,graph=TRUE,line.col="navy",grid=FALSE)
+#to get both plots, use below code
+par(mfrow=c(1,2),mar=c(4,4,1,1))
+
+plot(m1[disease==0],m2[disease==0],col="navy",pch=1,
+	xlim=c(0,300),ylim=c(0,300),xlab="M1",ylab="M2")
+points(m1[disease==1],m2[disease==1],col="navy",pch=16)
+lroc(glm3,graph=TRUE,line.col="navy",grid=FALSE)
+```
+
+## Likelihood Ratio Test
+
+
+When estimating the usefulness of a new biomarker, generally there are already rules delegating risk factors, for example, the age of patients. In order to test the new biomarker, then, it needs to be added into the existing model to determine how much *additional information* it provides. This principle can also be applied to a panel of **k** new markers. A **likelihood ratio** test is how we can apply these new markers, and is an example of where a *sequential* test makes sense. We want to add the markers to the existing model one at a time to test how they change the model. 
+
+## Example
+
+Using the previous example, let's assume that age is already a risk factor. 
+```{r}
+set.seed(1974)
+age <- 50 + m1/10 + rnorm(n,0,4)
+
+par(mfrow=c(1,1),mar=c(4,4,1,1))
+plot(age,m1,col="navy")
+#we are running anova on glms for each of the variables
+anova(glm(disease~age,family="binomial"),test="LRT")
+
+anova(glm(disease~m1,family="binomial"),test="LRT")
+
+anova(glm(disease~m2,family="binomial"),test="LRT")
+```
+
+In each of the ANOVA tests, all of the variables have a significant p-value, meaning that they are important in the model by themselves. These tests are called *univariate* analyses. 
+
+```{r}
+glm.5 <- glm(disease~m1,family="binomial")
+
+glm.6 <- glm(disease~m1+m2,family="binomial")
+
+glm.7 <- glm(disease~m1+m2+age,family="binomial")
+anova(glm.7,test="LRT") #type 1 LRT, sequential
+```
+
+Using a sequential test, M1 and M2 are both significant, but age is not. On its own, age is a significant variable, but not when the p-value is conditioned upon M1 and M2. This is because age is **correlated** with M1 and M2, so M1 and M2 change with age. 
+```{r}
+lroc5 <- lroc(glm.5,graph=TRUE,line.col="navy",grid=FALSE)
+lroc6 <- lroc(glm.6,add=TRUE,line.col="red",grid=FALSE)
+lroc7 <- lroc(glm.7,add=TRUE,line.col="darkgreen",grid=FALSE)
+plot(age,m1)
+```
+
