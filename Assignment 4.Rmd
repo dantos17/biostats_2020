@@ -1,0 +1,73 @@
+---
+title: "Assignment 4"
+author: "Dani Antos"
+date: "7/27/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Assignment 4
+
+```{r making GLM}
+setwd("C:/Users/dania/Documents/Pitt/BioStats/Module 4")
+x <- read.table("op.txt",sep="\t",header=T,stringsAsFactors=F)
+x$SITE.CODED <- factor(x$SITE.CODED)
+x 
+glm <- glm(OP~fev1.pct+fvc.pct+dlco.pct+PREOP.CA+PREOP.CAD+PREOP.COPD+PREOP.DM+PREOP.GERD+PREOP.HTN+T.SIZE+SITE.CODED, family="binomial",data=x)
+summary(glm)
+anova(glm, test="LR")
+library(car)
+Anova(glm,test="LR") #same four are significant, taking all but those four out of the model
+
+
+glm2 <- glm(OP~fev1.pct+PREOP.COPD+T.SIZE+SITE.CODED,family="binomial",data=x)
+anova(glm2,test="LR")
+Anova(glm2,test="LR")
+
+```
+
+OP <- x$OP
+predict <- predict(glm2,type="response")
+stripchart(predict~OP,vertical=T, na.action = na.omit,pch=1,col="navy",
+xlab="Died Within 1 Week",ylab="Estimated P(Died Within 1 Week)") #response will give on a probability logit scale
+#I can get predicted values but for some reason can't get the plot, no idea what's happening
+
+
+```{r ROC curve}
+library(epiDisplay)
+roc1 <- lroc(glm,graph=TRUE,line.col="red",grid=FALSE)
+roc2 <- lroc(glm2,add=TRUE,line.col="navy",grid=FALSE)
+```
+```{r Plotting real data}
+with(x,boxplot(fev1.pct~OP,xlab="Surgery",
+	ylab="FEV",xaxt="n")) 
+axis(1,at=1:2,labels=c("Lobectomy","Segmentectomy")) 
+with(x,boxplot(PREOP.COPD~OP,xlab="Surgery",
+	ylab="COPD History",xaxt="n"))
+axis(1,at=1:2,labels=c("Lobectomy","Segmentectomy"))
+with(x,boxplot(T.SIZE~OP,xlab="Surgery",
+	ylab="Tumor Size",xaxt="n"))
+axis(1,at=1:2,labels=c("Lobectomy","Segmentectomy"))
+with(x,plot(SITE.CODED~OP,xlab="Surgery",
+	ylab="Tumor Site"))
+
+```
+
+```{r Correlation}
+cor.test(x$PREOP.COPD, x$fev1.pct)
+cor.test(x$PREOP.COPD, x$T.SIZE)
+library(polycor)
+copd <- x$PREOP.COPD
+site <- x$SITE.CODED
+matrix <- x[,c(7,12)]
+hetcor(matrix)
+polyserial(x$PREOP.COPD,x$SITE.CODED)
+cor(x$fev1.pct,x$T.SIZE)
+polyserial(x$T.SIZE,x$SITE.CODED)
+polyserial(x$fev1.pct,x$SITE.CODED)
+
+```
+
