@@ -111,7 +111,7 @@ stripchart(predict(glm1,type="response")~all$died.1.wk,vertical=T,pch=1,col="nav
 axis(1,at=1:2,c("N","Y"))
 ```
 
-Looking at the predictions, our model isn't very good. The next step to making a better model is considering **interactions**. 
+Looking at the predictions, our model isn't very good. We can tell this because there are patients who had a super low probability of dying that died and vice versa. A good model will have more separation in the probabilities of each outcome. The next step to making a better model is considering **interactions**. 
 ```{r}
 glm2 <- glm(died.1.wk~T.bili+Platelets+n.PB.BLASTS+
 	T.bili:Platelets+T.bili:n.PB.BLASTS+Platelets:n.PB.BLASTS,
