@@ -1065,7 +1065,8 @@ x </code></pre>
 ## 342          0         1    1.4          1
 ## 343          0         1    2.0          1
 ## 344          1         1    1.5          4</code></pre>
-<pre class="r"><code>glm &lt;- glm(OP~fev1.pct+fvc.pct+dlco.pct+PREOP.CA+PREOP.CAD+PREOP.COPD+PREOP.DM+PREOP.GERD+PREOP.HTN+T.SIZE+SITE.CODED, family=&quot;binomial&quot;,data=x)
+<pre class="r"><code>OP &lt;- c(0,  1,  0,  0,  0,  0,  0,  1,  0,  1,  1,  1,  0,  0,  1,  1,  1,  0,  0,  0,  0,  1,  0,  1,  1,  0,  1,  0,  0,  1,  0,  0,  1,  0,  0,  1,  0,  0,  0,  1,  0,  1,  1,  0,  0,  1,  0,  0,  0,  1,  1,  1,  0,  0,  0,  0,  1,  0,  1,  1,  0,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  0,  1,  0,  1,  1,  1,  0,  1,  0,  0,  0,  1,  0,  0,  0,  0,  1,  1,  1,  1,  0,  0,  1,  0,  0,  0,  1,  1,  0,  1,  0,  1,  0,  0,  0,  1,  0,  1,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  1,  0,  1,  1,  1,  1,  1,  0,  1,  0,  0,  1,  1,  0,  1,  1,  1,  1,  0,  1,  1,  1,  1,  1,  1,  0,  1,  1,  1,  0,  0,  1,  0,  0,  0,  0,  0,  1,  0,  0,  1,  1,  1,  0,  1,  0,  0,  0,  0,  1,  1,  0,  1,  0,  1,  0,  1,  0,  0,  0,  1,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  0,  0,  0,  1,  1,  0,  0,  0,  0,  0,  1,  0,  0,  1,  1,  0,  0,  0,  1,  1,  1,  1,  0,  0,  1,  1,  0,  0,  0,  0,  0,  0,  1,  0,  0, 1,   1,  0,  0,  0,  0,  1,  0,  1,  0,  0,  1,  0,  0,  0,  1,  0,  0,  0,  0,  1,  0,  0,  1,  1,  0,  0,  1,  1,  0,  0,  1,  0,  1,  0,  0,  1,  0,  0,  1,  0,  1,  1,  0,  0,  0,  0,  0,  0,  1,  1,  0,  1,  1,  0,  0,  0,  1,  0,  0,  0,  0,  1,  1,  1,  0,  1,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  1,  1,  1,  1,  0,  0,  0)
+glm &lt;- glm(OP~fev1.pct+fvc.pct+dlco.pct+PREOP.CA+PREOP.CAD+PREOP.COPD+PREOP.DM+PREOP.GERD+PREOP.HTN+T.SIZE+SITE.CODED, family=&quot;binomial&quot;,data=x)
 summary(glm)</code></pre>
 <pre><code>## 
 ## Call:
@@ -1180,6 +1181,11 @@ anova(glm2,test=&quot;LR&quot;)</code></pre>
 ## SITE.CODED   35.340  4  3.955e-07 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>stripchart(predict(glm2,type=&quot;response&quot;)~OP,vertical=T, na.action = na.omit,pch=1,col=&quot;navy&quot;,
+xlab=&quot;Operation Type&quot;,ylab=&quot;Estimated P(Operation Type)&quot;,
+xaxt=&quot;n&quot;)
+axis(1,at=1:2,c(&quot;Lobectomy&quot;,&quot;Segmentectomy&quot;))</code></pre>
+<p><img src="data:image/png;base64,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" width="672" /></p>
 <p>OP &lt;- x$OP predict &lt;- predict(glm2,type=“response”) stripchart(predict~OP,vertical=T, na.action = na.omit,pch=1,col=“navy”, xlab=“Died Within 1 Week”,ylab=“Estimated P(Died Within 1 Week)”) #response will give on a probability logit scale #I can get predicted values but for some reason can’t get the plot, no idea what’s happening</p>
 <pre class="r"><code>library(epiDisplay)</code></pre>
 <pre><code>## Loading required package: foreign</code></pre>
@@ -1256,6 +1262,324 @@ hetcor(matrix)</code></pre>
 <pre><code>## [1] 0.1279139</code></pre>
 <pre class="r"><code>polyserial(x$fev1.pct,x$SITE.CODED)</code></pre>
 <pre><code>## [1] 0.06293484</code></pre>
+<pre class="r"><code>cor(x$fev1.pct,x$fvc.pct)</code></pre>
+<pre><code>## [1] 0.796113</code></pre>
+<pre class="r"><code>cor(x$fev1.pct,x$dlco.pct)</code></pre>
+<pre><code>## [1] 0.4754579</code></pre>
+<pre class="r"><code>cor.test(x$fev1.pct, x$PREOP.CA)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$fev1.pct and x$PREOP.CA
+## t = 0.41282, df = 342, p-value = 0.68
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.08362137  0.12775694
+## sample estimates:
+##        cor 
+## 0.02231719</code></pre>
+<pre class="r"><code>cor.test(x$fev1.pct, x$PREOP.CAD)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$fev1.pct and x$PREOP.CAD
+## t = -0.042819, df = 342, p-value = 0.9659
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.1080302  0.1034512
+## sample estimates:
+##         cor 
+## -0.00231539</code></pre>
+<pre class="r"><code>cor.test(x$fev1.pct, x$PREOP.DM)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$fev1.pct and x$PREOP.DM
+## t = -0.16675, df = 342, p-value = 0.8677
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.11464848  0.09681698
+## sample estimates:
+##          cor 
+## -0.009016562</code></pre>
+<pre class="r"><code>cor.test(x$fev1.pct, x$PREOP.GERD)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$fev1.pct and x$PREOP.GERD
+## t = 0.58309, df = 342, p-value = 0.5602
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.07447513  0.13679964
+## sample estimates:
+##        cor 
+## 0.03151427</code></pre>
+<pre class="r"><code>cor.test(x$fev1.pct, x$PREOP.HTN)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$fev1.pct and x$PREOP.HTN
+## t = -2.1391, df = 342, p-value = 0.03313
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.21799671 -0.00927563
+## sample estimates:
+##        cor 
+## -0.1149042</code></pre>
+<pre class="r"><code>cor(x$fvc.pct,x$dlco.pct)</code></pre>
+<pre><code>## [1] 0.3290864</code></pre>
+<pre class="r"><code>cor.test(x$fvc.pct, x$PREOP.CA)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$fvc.pct and x$PREOP.CA
+## t = 0.39896, df = 342, p-value = 0.6902
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.0843655  0.1270197
+## sample estimates:
+##        cor 
+## 0.02156814</code></pre>
+<pre class="r"><code>cor.test(x$fvc.pct, x$PREOP.CAD)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$fvc.pct and x$PREOP.CAD
+## t = -0.88028, df = 342, p-value = 0.3793
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.15252057  0.05848914
+## sample estimates:
+##         cor 
+## -0.04754615</code></pre>
+<pre class="r"><code>cor.test(x$fvc.pct, x$PREOP.COPD)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$fvc.pct and x$PREOP.COPD
+## t = -2.2531, df = 342, p-value = 0.02488
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.2238208 -0.0153976
+## sample estimates:
+##        cor 
+## -0.1209419</code></pre>
+<pre class="r"><code>cor.test(x$fvc.pct, x$PREOP.DM)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$fvc.pct and x$PREOP.DM
+## t = -0.73145, df = 342, p-value = 0.465
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.1446581  0.0664977
+## sample estimates:
+##         cor 
+## -0.03952143</code></pre>
+<pre class="r"><code>cor.test(x$fvc.pct, x$PREOP.GERD)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$fvc.pct and x$PREOP.GERD
+## t = 1.5656, df = 342, p-value = 0.1184
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.02157529  0.18841889
+## sample estimates:
+##        cor 
+## 0.08435839</code></pre>
+<pre class="r"><code>cor.test(x$fvc.pct, x$PREOP.HTN)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$fvc.pct and x$PREOP.HTN
+## t = -2.4971, df = 342, p-value = 0.01299
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.23621037 -0.02847301
+## sample estimates:
+##        cor 
+## -0.1338114</code></pre>
+<pre class="r"><code>cor(x$fvc.pct,x$T.SIZE)</code></pre>
+<pre><code>## [1] -0.015031</code></pre>
+<pre class="r"><code>polyserial(x$fvc.pct, x$SITE.CODED)</code></pre>
+<pre><code>## [1] 0.0006950137</code></pre>
+<pre class="r"><code>cor.test(x$dlco.pct, x$PREOP.CA)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$dlco.pct and x$PREOP.CA
+## t = -1.2086, df = 342, p-value = 0.2276
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.1697865  0.0408065
+## sample estimates:
+##         cor 
+## -0.06521613</code></pre>
+<pre class="r"><code>cor.test(x$dlco.pct, x$PREOP.CAD)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$dlco.pct and x$PREOP.CAD
+## t = -1.3143, df = 342, p-value = 0.1896
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.17531693  0.03511458
+## sample estimates:
+##         cor 
+## -0.07088987</code></pre>
+<pre class="r"><code>cor.test(x$dlco.pct, x$PREOP.COPD)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$dlco.pct and x$PREOP.COPD
+## t = -4.8745, df = 342, p-value = 1.673e-06
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.3511555 -0.1532678
+## sample estimates:
+##        cor 
+## -0.2548783</code></pre>
+<pre class="r"><code>cor.test(x$dlco.pct, x$PREOP.DM)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$dlco.pct and x$PREOP.DM
+## t = -0.58881, df = 342, p-value = 0.5564
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.13710318  0.07416749
+## sample estimates:
+##         cor 
+## -0.03182331</code></pre>
+<pre class="r"><code>cor.test(x$dlco.pct, x$PREOP.GERD)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$dlco.pct and x$PREOP.GERD
+## t = 0.40888, df = 342, p-value = 0.6829
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.08383278  0.12754750
+## sample estimates:
+##        cor 
+## 0.02210439</code></pre>
+<pre class="r"><code>cor.test(x$dlco.pct, x$PREOP.HTN)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$dlco.pct and x$PREOP.HTN
+## t = -0.92063, df = 342, p-value = 0.3579
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.15464836  0.05631713
+## sample estimates:
+##         cor 
+## -0.04972019</code></pre>
+<pre class="r"><code>cor(x$dlco.pct, x$T.SIZE)</code></pre>
+<pre><code>## [1] -0.01272049</code></pre>
+<pre class="r"><code>polyserial(x$dlco.pct, x$SITE.CODED)</code></pre>
+<pre><code>## [1] 0.007062277</code></pre>
+<pre class="r"><code>cor(x$PREOP.CA, x$PREOP.CAD)</code></pre>
+<pre><code>## [1] -0.03697519</code></pre>
+<pre class="r"><code>cor(x$PREOP.CA, x$PREOP.COPD)</code></pre>
+<pre><code>## [1] 0.001294794</code></pre>
+<pre class="r"><code>cor(x$PREOP.CA, x$PREOP.DM)</code></pre>
+<pre><code>## [1] -0.03101177</code></pre>
+<pre class="r"><code>cor(x$PREOP.CA, x$PREOP.GERD)</code></pre>
+<pre><code>## [1] -0.07249487</code></pre>
+<pre class="r"><code>cor(x$PREOP.CA, x$PREOP.HTN)</code></pre>
+<pre><code>## [1] -0.07773274</code></pre>
+<pre class="r"><code>cor.test(x$PREOP.CA, x$T.SIZE)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$PREOP.CA and x$T.SIZE
+## t = 0.6329, df = 342, p-value = 0.5272
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.07179775  0.13944007
+## sample estimates:
+##        cor 
+## 0.03420315</code></pre>
+<pre class="r"><code>polyserial(x$PREOP.CA, x$SITE.CODED)</code></pre>
+<pre><code>## [1] 0.07527138</code></pre>
+<pre class="r"><code>cor(x$PREOP.CAD, x$PREOP.COPD)</code></pre>
+<pre><code>## [1] 0.06429314</code></pre>
+<pre class="r"><code>cor(x$PREOP.CAD, x$PREOP.DM)</code></pre>
+<pre><code>## [1] 0.17085</code></pre>
+<pre class="r"><code>cor(x$PREOP.CAD, x$PREOP.GERD)</code></pre>
+<pre><code>## [1] -0.00661275</code></pre>
+<pre class="r"><code>cor(x$PREOP.CAD, x$PREOP.HTN)</code></pre>
+<pre><code>## [1] 0.1701527</code></pre>
+<pre class="r"><code>cor.test(x$PREOP.CAD, x$T.SIZE)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$PREOP.CAD and x$T.SIZE
+## t = -0.94084, df = 342, p-value = 0.3475
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.1557138  0.0552288
+## sample estimates:
+##         cor 
+## -0.05080915</code></pre>
+<pre class="r"><code>polyserial(x$PREOP.CAD, x$SITE.CODED)</code></pre>
+<pre><code>## [1] 0.1285386</code></pre>
+<pre class="r"><code>cor(x$PREOP.COPD, x$PREOP.DM)</code></pre>
+<pre><code>## [1] -0.1221275</code></pre>
+<pre class="r"><code>cor(x$PREOP.COPD, x$PREOP.GERD)</code></pre>
+<pre><code>## [1] -0.04466673</code></pre>
+<pre class="r"><code>cor(x$PREOP.COPD, x$PREOP.HTN)</code></pre>
+<pre><code>## [1] 0.0720923</code></pre>
+<pre class="r"><code>cor(x$PREOP.DM, x$PREOP.GERD)</code></pre>
+<pre><code>## [1] 0.05805058</code></pre>
+<pre class="r"><code>cor(x$PREOP.DM, x$PREOP.HTN)</code></pre>
+<pre><code>## [1] 0.2028723</code></pre>
+<pre class="r"><code>cor.test(x$PREOP.DM, x$T.SIZE)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$PREOP.DM and x$T.SIZE
+## t = 1.6308, df = 342, p-value = 0.1038
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.01806374  0.19180486
+## sample estimates:
+##        cor 
+## 0.08784528</code></pre>
+<pre class="r"><code>polyserial(x$PREOP.DM, x$SITE.CODED)</code></pre>
+<pre><code>## [1] 0.0272424</code></pre>
+<pre class="r"><code>cor(x$PREOP.GERD, x$PREOP.HTN)</code></pre>
+<pre><code>## [1] 0.07628702</code></pre>
+<pre class="r"><code>cor.test(x$PREOP.GERD, x$T.SIZE)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$PREOP.GERD and x$T.SIZE
+## t = -1.237, df = 342, p-value = 0.2169
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.17127415  0.03927676
+## sample estimates:
+##         cor 
+## -0.06674166</code></pre>
+<pre class="r"><code>polyserial(x$PREOP.GERD, x$SITE.CODED)</code></pre>
+<pre><code>## [1] -0.02885958</code></pre>
+<pre class="r"><code>cor.test(x$PREOP.HTN, x$T.SIZE)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x$PREOP.HTN and x$T.SIZE
+## t = 0.9071, df = 342, p-value = 0.365
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.05704542  0.15393511
+## sample estimates:
+##        cor 
+## 0.04899132</code></pre>
+<pre class="r"><code>polyserial(x$PREOP.HTN, x$SITE.CODED)</code></pre>
+<pre><code>## [1] 0.06900108</code></pre>
 </div>
 
 
