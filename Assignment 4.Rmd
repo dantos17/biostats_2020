@@ -21,12 +21,12 @@ glm <- glm(OP~fev1.pct+fvc.pct+dlco.pct+PREOP.CA+PREOP.CAD+PREOP.COPD+PREOP.DM+P
 summary(glm)
 anova(glm, test="LR")
 library(car)
-Anova(glm,test="LR") #same four are significant, taking all but those four out of the model
+Anova(glm, type=2, test="LR") #same four are significant, taking all but those four out of the model
 
 
 glm2 <- glm(OP~fev1.pct+PREOP.COPD+T.SIZE+SITE.CODED,family="binomial",data=x)
 anova(glm2,test="LR")
-Anova(glm2,test="LR")
+Anova(glm2, type=2, test="LR")
 
 stripchart(predict(glm2,type="response")~OP,vertical=T, na.action = na.omit,pch=1,col="navy",
 xlab="Operation Type",ylab="Estimated P(Operation Type)",
